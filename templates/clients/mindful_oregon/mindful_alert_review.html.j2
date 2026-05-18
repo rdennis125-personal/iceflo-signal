@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ envelope.email_title | default('Review Needed') }}</title>
+</head>
+<body style="margin:0; padding:0; background:#F7F2EA; font-family:Arial, Helvetica, sans-serif; color:#23413A;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F7F2EA; padding:28px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:700px; background:#FFFFFF; border-radius:22px; overflow:hidden; box-shadow:0 8px 24px rgba(35,65,58,0.08);">
+        <tr>
+          <td style="padding:26px 32px; background:#C98F84; color:#FFFFFF;">
+            <div style="font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:#F7F2EA;">{{ payload.alert_category }}</div>
+            <h1 style="margin:8px 0 0; font-size:28px; line-height:1.2;">{{ envelope.report_title }}</h1>
+            <div style="margin-top:8px; font-size:15px; color:#FFF4EE;">{{ envelope.report_period }}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:26px 32px 12px;">
+            <div style="background:#F7F2EA; border:1px solid #E4D8C8; border-radius:16px; padding:18px 20px;">
+              <h2 style="margin:0 0 8px; font-size:18px; color:#23413A;">{{ payload.alert_title }}</h2>
+              <p style="margin:0; font-size:15px; line-height:1.6; color:#31564E;">{{ payload.alert_message }}</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:10px 32px 24px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+              <thead>
+                <tr>
+                  {% for column in payload.table_columns %}
+                  <th align="left" style="padding:10px; background:#23413A; color:#FFFFFF; font-size:12px; text-transform:uppercase; letter-spacing:.04em;">{{ column }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in payload.table_rows %}
+                <tr>
+                  {% for value in row %}
+                  <td style="padding:10px; border-bottom:1px solid #E4D8C8; font-size:13px; color:#31564E;">{{ value }}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr><td style="padding:0 32px 28px;">{{ envelope.content_html | safe }}</td></tr>
+        <tr><td style="background:#F2E8DB; padding:20px 32px; font-size:12px; line-height:1.5; color:#61746E;">{{ envelope.footer_text }}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

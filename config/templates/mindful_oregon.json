@@ -1,0 +1,25 @@
+{
+  "client_id": "mindful_oregon",
+  "templates": [
+    {
+      "template_id": "mindful_oregon.base_card",
+      "path": "clients/mindful_oregon/mindful_base_card.html.j2",
+      "payload_model": "BaseCardPayload"
+    },
+    {
+      "template_id": "mindful_oregon.exec_summary",
+      "path": "clients/mindful_oregon/mindful_exec_summary.html.j2",
+      "payload_model": "ExecSummaryPayload"
+    },
+    {
+      "template_id": "mindful_oregon.clinician_digest",
+      "path": "clients/mindful_oregon/mindful_clinician_digest.html.j2",
+      "payload_model": "ClinicianDigestPayload"
+    },
+    {
+      "template_id": "mindful_oregon.alert_review",
+      "path": "clients/mindful_oregon/mindful_alert_review.html.j2",
+      "payload_model": "AlertReviewPayload"
+    }
+  ]
+}
