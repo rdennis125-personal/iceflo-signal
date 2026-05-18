@@ -1,0 +1,10 @@
+project_id       = "your-gcp-project-id"
+region           = "us-central1"
+storage_location = "US"
+root_bucket_name = "iceflo-signal-dev-your-unique-suffix"
+
+labels = {
+  app         = "iceflo-signal"
+  managed_by  = "terraform"
+  environment = "dev"
+}
