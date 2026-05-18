@@ -1,0 +1,6 @@
+session_id,clinician_id,clinician_name,clinician_email,session_date,location_code,program_code,documentation_status,signed_date
+SYN-1001,cln-001,Avery Stone,avery.stone@example.test,2026-05-04,west,adult,complete,2026-05-05
+SYN-1002,cln-001,Avery Stone,avery.stone@example.test,2026-05-06,west,adult,incomplete,
+SYN-1003,cln-002,Jordan Lee,jordan.lee@example.test,2026-05-07,north,youth,missing,
+SYN-1004,cln-003,Riley Patel,riley.patel@example.test,2026-05-08,east,adult,late,
+SYN-1005,cln-003,Riley Patel,riley.patel@example.test,2026-05-09,east,adult,complete,2026-05-10

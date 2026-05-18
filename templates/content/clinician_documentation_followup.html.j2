@@ -1,0 +1,32 @@
+{% extends "layouts/base.html.j2" %}
+{% set title = "Documentation Follow-up" %}
+{% block content %}
+<h1>Documentation Follow-up</h1>
+<p>Hello {{ report.clinician_name }},</p>
+<p>This dry-run notification summarizes sessions with documentation still needing attention.</p>
+<table>
+  <tbody>
+    <tr>
+      <th>Incomplete sessions</th>
+      <td>{{ report.incomplete_session_count }}</td>
+    </tr>
+    <tr>
+      <th>Oldest session date</th>
+      <td>{{ report.oldest_session_date }}</td>
+    </tr>
+    <tr>
+      <th>Latest session date</th>
+      <td>{{ report.latest_session_date }}</td>
+    </tr>
+    <tr>
+      <th>Maximum age in days</th>
+      <td>{{ report.max_documentation_age_days }}</td>
+    </tr>
+    <tr>
+      <th>Session IDs</th>
+      <td>{{ report.session_ids }}</td>
+    </tr>
+  </tbody>
+</table>
+<p>Thank you.</p>
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "mapping_id": "synthetic_clinician_recipients",
+  "recipient_key": "clinician_email",
+  "cc": [],
+  "bcc": []
+}

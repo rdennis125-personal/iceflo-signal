@@ -1,0 +1,11 @@
+{
+  "report_id": "clinician_documentation_followup",
+  "name": "Clinician Documentation Follow-up",
+  "curated_dataset": "CURATED_CLINICIAN_DOCUMENTATION_STATUS",
+  "template": "content/clinician_documentation_followup.html.j2",
+  "delivery_mode": "dry_run_html",
+  "rules": {
+    "include_statuses": ["incomplete", "missing", "late"],
+    "lookback_days": 7
+  }
+}

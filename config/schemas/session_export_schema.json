@@ -1,0 +1,14 @@
+{
+  "schema_id": "session_export_v1",
+  "required_columns": [
+    "session_id",
+    "clinician_id",
+    "clinician_name",
+    "clinician_email",
+    "session_date",
+    "location_code",
+    "program_code",
+    "documentation_status"
+  ],
+  "allowed_documentation_statuses": ["complete", "incomplete", "missing", "late"]
+}
