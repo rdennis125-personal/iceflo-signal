@@ -1,0 +1,13 @@
+{
+  "client_id": "mindful_oregon",
+  "source_system": "simple_practice",
+  "client_identity": {
+    "key_strategy": "sha256(namespace + normalized_source_name)",
+    "display_strategy": "first_two_letters_of_first_and_last_name",
+    "display_example": {
+      "source_name": "John Jones",
+      "client_display_name": "Jo Jo"
+    },
+    "warning": "Client display names are not unique and must never be used as join keys."
+  }
+}
