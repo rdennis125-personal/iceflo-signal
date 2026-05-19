@@ -6,7 +6,7 @@ The initial implementation uses local paths to keep development portable. Storag
 
 ## Layers
 
-- Landing: manually exported CSV files arrive in `storage_sample/landing/incoming`.
+- Landing: manually exported CSV files arrive in a client/source-system namespace such as `storage_sample/landing/clients/mindful_oregon/simple_practice/incoming`.
 - Raw: source-shaped records plus ingestion metadata.
 - Normalized: standardized dates, identifiers, statuses, and null handling.
 - Facts and dimensions: reusable reporting tables.

@@ -1,17 +1,17 @@
 locals {
   storage_prefixes = toset([
-    "landing/incoming/",
-    "landing/archive/",
-    "landing/rejected/",
-    "transformed/raw/",
-    "transformed/normalized/",
-    "transformed/facts/",
-    "transformed/dimensions/",
-    "transformed/curated/",
-    "utility/config/",
-    "utility/schemas/",
-    "utility/templates/",
-    "utility/reference/",
+    "landing/clients/mindful_oregon/simple_practice/incoming/",
+    "landing/clients/mindful_oregon/simple_practice/archive/",
+    "landing/clients/mindful_oregon/simple_practice/rejected/",
+    "transformed/clients/mindful_oregon/simple_practice/raw/",
+    "transformed/clients/mindful_oregon/simple_practice/normalized/",
+    "transformed/clients/mindful_oregon/simple_practice/facts/",
+    "transformed/clients/mindful_oregon/simple_practice/dimensions/",
+    "transformed/clients/mindful_oregon/simple_practice/curated/",
+    "utility/clients/mindful_oregon/simple_practice/config/",
+    "utility/clients/mindful_oregon/simple_practice/schemas/",
+    "utility/clients/mindful_oregon/simple_practice/templates/",
+    "utility/clients/mindful_oregon/simple_practice/reference/",
   ])
 }
 
@@ -31,7 +31,7 @@ resource "google_storage_bucket" "root" {
   lifecycle_rule {
     condition {
       age            = 30
-      matches_prefix = ["landing/archive/"]
+      matches_prefix = ["landing/clients/mindful_oregon/simple_practice/archive/"]
     }
 
     action {

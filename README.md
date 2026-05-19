@@ -27,22 +27,31 @@ Manual CSV Export
 ```text
 /storage
   /landing
-    /incoming
-    /archive
-    /rejected
+    /clients
+      /mindful_oregon
+        /simple_practice
+          /incoming
+          /archive
+          /rejected
 
   /transformed
-    /raw
-    /normalized
-    /facts
-    /dimensions
-    /curated
+    /clients
+      /mindful_oregon
+        /simple_practice
+          /raw
+          /normalized
+          /facts
+          /dimensions
+          /curated
 
   /utility
-    /config
-    /schemas
-    /templates
-    /reference
+    /clients
+      /mindful_oregon
+        /simple_practice
+          /config
+          /schemas
+          /templates
+          /reference
 ```
 
 ## Technology Stack
