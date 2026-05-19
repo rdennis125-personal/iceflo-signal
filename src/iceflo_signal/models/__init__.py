@@ -7,9 +7,23 @@ from iceflo_signal.models.session import (
     ValidationIssue,
     ValidationResult,
 )
+from iceflo_signal.models.email import (
+    AlertReviewPayload,
+    BaseCardPayload,
+    ClinicianDigestPayload,
+    EmailEnvelope,
+    ExecSummaryPayload,
+    LabelValueItem,
+)
 
 __all__ = [
+    "AlertReviewPayload",
+    "BaseCardPayload",
     "Clinician",
+    "ClinicianDigestPayload",
+    "EmailEnvelope",
+    "ExecSummaryPayload",
+    "LabelValueItem",
     "ProcessingMetadata",
     "SessionRecord",
     "ValidationIssue",

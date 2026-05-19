@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ envelope.email_title | default('Executive Summary') }}</title>
+</head>
+<body style="margin:0; padding:0; background:#F7F2EA; font-family:Arial, Helvetica, sans-serif; color:#23413A;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F7F2EA; padding:30px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px; background:#FFFFFF; border-radius:24px; overflow:hidden; box-shadow:0 8px 24px rgba(35,65,58,0.08);">
+        <tr>
+          <td style="padding:34px 38px; background:#E9DED0;">
+            <div style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:#5E8C86;">{{ envelope.organization_name }}</div>
+            <h1 style="margin:10px 0 8px; font-size:32px; line-height:1.2; color:#23413A;">{{ envelope.report_title }}</h1>
+            <p style="margin:0; font-size:16px; line-height:1.6; color:#31564E;">{{ payload.executive_summary }}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px 8px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              {% for metric in payload.kpi_grid %}
+              <tr>
+                <td style="padding:10px 0; border-bottom:1px solid #E4D8C8;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td style="font-size:15px; color:#31564E;">{{ metric.label }}</td>
+                      <td align="right" style="font-size:22px; font-weight:700; color:#23413A;">{{ metric.value }}</td>
+                    </tr>
+                    {% if metric.note %}
+                    <tr><td colspan="2" style="padding-top:4px; font-size:13px; color:#61746E;">{{ metric.note }}</td></tr>
+                    {% endif %}
+                  </table>
+                </td>
+              </tr>
+              {% endfor %}
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 32px;">
+            <div style="background:#F7F2EA; border-left:6px solid #5E8C86; border-radius:14px; padding:18px 20px;">
+              <h2 style="margin:0 0 8px; font-size:18px; color:#23413A;">{{ payload.callout_title }}</h2>
+              <p style="margin:0; font-size:15px; line-height:1.6; color:#31564E;">{{ payload.callout_text }}</p>
+            </div>
+          </td>
+        </tr>
+        <tr><td style="padding:0 32px 30px;">{{ envelope.content_html | safe }}</td></tr>
+        <tr><td style="background:#23413A; color:#E9DED0; padding:20px 32px; font-size:12px; line-height:1.5;">{{ envelope.footer_text }}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

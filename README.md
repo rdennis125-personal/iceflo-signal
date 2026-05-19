@@ -117,6 +117,29 @@ Run the sample pipeline:
 python -m iceflo_signal run-local --input storage_sample/landing/incoming/sample_sessions.csv --output storage_sample/transformed
 ```
 
+Render local demo email previews:
+
+```bash
+python -m iceflo_signal render-template-demo --recipient rdennis125@gmail.com --output storage_sample/transformed/curated/template_demos
+```
+
+The demo command writes browser-previewable HTML and `.eml` draft files for each registered template:
+
+```text
+storage_sample/transformed/curated/template_demos/
+  index.html
+  mindful_oregon_alert_review.html
+  mindful_oregon_alert_review.eml
+  mindful_oregon_base_card.html
+  mindful_oregon_base_card.eml
+  mindful_oregon_clinician_digest.html
+  mindful_oregon_clinician_digest.eml
+  mindful_oregon_exec_summary.html
+  mindful_oregon_exec_summary.eml
+```
+
+Open `storage_sample/transformed/curated/template_demos/index.html` in a browser to inspect all demo templates. The `.eml` files are local email drafts addressed to the configured recipient; the project does not send email yet.
+
 ## Security Notes
 
 Do not commit:
