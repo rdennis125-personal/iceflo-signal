@@ -14,6 +14,8 @@ from iceflo_signal.models.email import (
     ClinicianDigestPayload,
     EmailEnvelope,
     ExecSummaryPayload,
+    IncompleteNoteNotificationPayload,
+    IncompleteNoteRow,
     LabelValueItem,
 )
 
@@ -122,6 +124,23 @@ def _demo_context_for(template_id: str, recipient: str) -> tuple[EmailEnvelope, 
                 LabelValueItem(label="Recipient", value=recipient, note="Parameterized"),
             ],
             callout_text="This template preview uses synthetic lorem ipsum context.",
+        ),
+        "mindful_oregon.incomplete_note_notification": IncompleteNoteNotificationPayload(
+            clinician_name="Demo Clinician",
+            recipient=recipient,
+            incomplete_note_count=2,
+            rows=[
+                IncompleteNoteRow(
+                    date_of_service="05/02/2026 2:30 PM",
+                    client_display_name="Jo Jo",
+                    progress_note_status="NO NOTE",
+                ),
+                IncompleteNoteRow(
+                    date_of_service="05/03/2026 9:00 AM",
+                    client_display_name="Av St",
+                    progress_note_status="DRAFT",
+                ),
+            ],
         ),
     }
     return envelope, payload_by_template[template_id]

@@ -8,6 +8,7 @@ These four templates are intended for the ICEFLO Signal email template factory.
 - `mindful_exec_summary.html.j2` — corporate/admin summary with KPI list and callout section.
 - `mindful_clinician_digest.html.j2` — clinician-specific digest with personal greeting and compact metrics.
 - `mindful_alert_review.html.j2` — exception/review-needed layout with alert banner and table.
+- `mindful_incomplete_note_notification.html.j2` — Mindful Oregon incomplete progress note notification.
 
 ## Template IDs
 
@@ -15,6 +16,7 @@ These four templates are intended for the ICEFLO Signal email template factory.
 - `mindful_oregon.exec_summary`
 - `mindful_oregon.clinician_digest`
 - `mindful_oregon.alert_review`
+- `mindful_oregon.incomplete_note_notification`
 
 ## Context contract
 

@@ -5,8 +5,11 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from iceflo_signal.delivery.clients.mindful_oregon import IncompleteNoteNotificationRenderer
 from iceflo_signal.delivery.demo_renderer import render_template_demos
+from iceflo_signal.ingestion.clients.mindful_oregon.simple_practice import AppointmentStatusProcessor
 from iceflo_signal.pipeline import run_local_pipeline
+from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteTransformer
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -45,6 +48,39 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory containing Jinja2 templates.",
     )
 
+    incomplete_notes = subparsers.add_parser(
+        "render-incomplete-note-notifications",
+        help="Render clinician dry-run notifications for appointment rows whose progress note is not LOCKED.",
+    )
+    incomplete_notes.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to the SimplePractice appointment-status-report CSV.",
+    )
+    incomplete_notes.add_argument(
+        "--output",
+        default=Path("storage_sample/transformed/clients/mindful_oregon/simple_practice/curated/incomplete_note_notifications"),
+        type=Path,
+        help="Directory where notification HTML and .eml drafts will be written.",
+    )
+    incomplete_notes.add_argument(
+        "--recipient",
+        default="rdennis125@gmail.com",
+        help="Fallback recipient address for generated .eml drafts.",
+    )
+    incomplete_notes.add_argument(
+        "--report-period",
+        default="Weekly SimplePractice export",
+        help="Report period label shown in rendered notifications.",
+    )
+    incomplete_notes.add_argument(
+        "--template-dir",
+        default=Path("templates"),
+        type=Path,
+        help="Directory containing Jinja2 templates.",
+    )
+
     return parser
 
 
@@ -65,6 +101,21 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(f"Rendered {len(result.html_paths)} HTML previews for {args.recipient}.")
         print(f"Rendered {len(result.eml_paths)} email drafts.")
+        print(f"Open {result.index_path} in a browser.")
+        return 0
+
+    if args.command == "render-incomplete-note-notifications":
+        appointment_rows = AppointmentStatusProcessor().process(args.input)
+        digests = IncompleteNoteTransformer().build_digests(appointment_rows)
+        result = IncompleteNoteNotificationRenderer(template_dir=args.template_dir).render(
+            digests=digests,
+            output_dir=args.output,
+            recipient=args.recipient,
+            report_period=args.report_period,
+        )
+        print(f"Found {sum(len(digest.records) for digest in digests)} incomplete-note appointments.")
+        print(f"Rendered {len(result.html_paths)} clinician HTML previews.")
+        print(f"Rendered {len(result.eml_paths)} clinician email drafts for {args.recipient}.")
         print(f"Open {result.index_path} in a browser.")
         return 0
 

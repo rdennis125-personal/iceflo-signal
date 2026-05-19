@@ -14,6 +14,7 @@ from iceflo_signal.models.email import (
     ClinicianDigestPayload,
     EmailEnvelope,
     ExecSummaryPayload,
+    IncompleteNoteNotificationPayload,
 )
 
 PayloadModel: TypeAlias = type[BaseModel]
@@ -49,6 +50,11 @@ DEFAULT_TEMPLATE_REGISTRY: dict[str, TemplateSpec] = {
         template_id="mindful_oregon.alert_review",
         path="clients/mindful_oregon/mindful_alert_review.html.j2",
         payload_model=AlertReviewPayload,
+    ),
+    "mindful_oregon.incomplete_note_notification": TemplateSpec(
+        template_id="mindful_oregon.incomplete_note_notification",
+        path="clients/mindful_oregon/mindful_incomplete_note_notification.html.j2",
+        payload_model=IncompleteNoteNotificationPayload,
     ),
 }
 
