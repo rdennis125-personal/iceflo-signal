@@ -101,6 +101,73 @@ Use-case-ready 2D datasets such as:
 - `CURATED_CORPORATE_BILLING_READINESS`
 - `CURATED_DOCUMENTATION_AGING`
 
+## SimplePractice Transform Base
+
+The `transform_base` work adds the first privacy-preserving SimplePractice CSV processing layer for the Mindful Oregon client namespace.
+
+Client-specific SimplePractice processors live under:
+
+```text
+src/iceflo_signal/ingestion/clients/mindful_oregon/simple_practice/
+```
+
+The observed SimplePractice export definitions and privacy rules live under:
+
+```text
+config/clients/mindful_oregon/simple_practice/
+  export_definitions.json
+  privacy_rules.json
+```
+
+Supported initial export processors:
+
+- `ClientPhoneSmsRemindersProcessor`
+- `ClientEmailsProcessor`
+- `UnpaidInsuranceAppointmentsProcessor`
+- `InsuranceClaimsProcessor`
+- `InsurancePaymentReportsProcessor`
+- `InsuranceStatusChecksProcessor`
+- `AppointmentStatusProcessor`
+- `ClientDetailsProcessor`
+- `ClientAttendanceProcessor`
+- `ClientDemographicsProcessor`
+- `InsuranceAgingProcessor`
+
+### Client Privacy Rule
+
+Client names are transformed into privacy-safe display values before downstream presentation.
+
+```text
+John Jones      -> Jo Jo
+Joseph Johnson  -> Jo Jo
+```
+
+Display names are not unique and must never be used as join keys. Each client record also receives a stable `client_key` generated from a namespaced SHA-256 hash of the normalized source name. This allows the EDW to preserve uniqueness for client-specific reporting while keeping presentation outputs obfuscated.
+
+### Export-Specific Handling
+
+The appointment status export repeats `Charge`, `Paid`, and `Unpaid` headers. The processor maps those duplicate fields into semantic responsibility groups:
+
+```text
+Charge   -> client_responsibility_charge
+Paid     -> client_responsibility_paid
+Unpaid   -> client_responsibility_unpaid
+
+Charge__2 -> insurance_responsibility_charge
+Paid__2   -> insurance_responsibility_paid
+Unpaid__2 -> insurance_responsibility_unpaid
+```
+
+The client attendance export includes a SimplePractice summary row such as:
+
+```text
+230 clients, 9 clinicians, 807 appointments, 1 office, 5 statuses
+```
+
+`ClientAttendanceProcessor` excludes that summary row from transformed attendance records.
+
+The insurance aging export is payer-level aggregate data and does not include a client identity column.
+
 ## Local Development
 
 ```bash

@@ -1,0 +1,62 @@
+{
+  "client_id": "mindful_oregon",
+  "source_system": "simple_practice",
+  "exports": [
+    {
+      "export_name": "client_phone_sms_reminders",
+      "expected_columns": ["Date", "Primary Clinician", "Client", "Type", "Status"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "client_emails",
+      "expected_columns": ["Date", "Primary Clinician", "Client", "Status", "To", "Subject"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "unpaid_insurance_appointments",
+      "expected_columns": ["Date", "Client", "Clearinghouse Reference", "Payer Claim", "Billed", "Co-Pay", "Ins. Billed", "Ins. Paid", "Ins. Balance"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "insurance_claims",
+      "expected_columns": ["Date Submitted", "Client", "Status", "Payer", "Clearinghouse Reference", "Payer Claim"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "insurance_payment_reports",
+      "expected_columns": ["Date Received", "Client", "Payer", "Amount", "Clearinghouse Reference", "Payer Claim", "Payment Reference", "Payment Status"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "insurance_status_checks",
+      "expected_columns": ["Date Requested", "Client", "Status", "Payer"],
+      "client_name_columns": ["Client"]
+    },
+    {
+      "export_name": "appointment_status",
+      "expected_columns": ["Date of Service", "Client", "Clinician", "Billing Code", "Primary Insurance", "Secondary Insurance", "Rate per Unit", "Units", "Total Fee", "Progress Note Status", "Client Payment Status", "Charge", "Uninvoiced", "Paid", "Unpaid", "Insurance Payment Status", "Write Off"],
+      "client_name_columns": ["Client"],
+      "notes": "SimplePractice repeats Charge, Paid, and Unpaid headers in this export. The first set maps to client responsibility; the second set maps to insurance responsibility."
+    },
+    {
+      "export_name": "client_details",
+      "expected_columns": ["Client", "Client type", "Date added", "Primary clinician", "Last appointment", "Next appointment", "Address", "City", "State", "ZIP", "Phone number", "Email", "Contact name", "Contact phone", "Contact email", "Primary insurance", "Insurance ID", "Status"],
+      "client_name_columns": ["Client", "Contact name"]
+    },
+    {
+      "export_name": "client_attendance",
+      "expected_columns": ["client_name", "clinician_name", "date_of_service", "office_name", "status"],
+      "client_name_columns": ["client_name"]
+    },
+    {
+      "export_name": "client_demographics",
+      "expected_columns": ["Client", "Contact", "Age", "Date of birth", "Sex", "Gender identity", "Race", "Relationship status", "Employment status", "Preferred language", "City", "ZIP"],
+      "client_name_columns": ["Client", "Contact"]
+    },
+    {
+      "export_name": "insurance_aging",
+      "expected_columns": ["Insurance Payer", "Unbilled", "Total Charges", "Due 30 days", "Due 60 days", "Balance Due"],
+      "client_name_columns": []
+    }
+  ]
+}

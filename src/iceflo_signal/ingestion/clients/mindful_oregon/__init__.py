@@ -1,0 +1,1 @@
+"""Mindful Oregon ingestion implementations."""
