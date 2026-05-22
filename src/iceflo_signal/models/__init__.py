@@ -13,6 +13,8 @@ from iceflo_signal.models.email import (
     ClinicianDigestPayload,
     EmailEnvelope,
     ExecSummaryPayload,
+    IncompleteNoteNotificationPayload,
+    IncompleteNoteRow,
     LabelValueItem,
 )
 
@@ -23,6 +25,8 @@ __all__ = [
     "ClinicianDigestPayload",
     "EmailEnvelope",
     "ExecSummaryPayload",
+    "IncompleteNoteNotificationPayload",
+    "IncompleteNoteRow",
     "LabelValueItem",
     "ProcessingMetadata",
     "SessionRecord",

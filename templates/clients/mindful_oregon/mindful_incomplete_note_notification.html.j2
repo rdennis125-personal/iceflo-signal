@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ envelope.email_title }}</title>
+</head>
+<body style="margin:0; padding:0; background:#F7F2EA; font-family:Arial, Helvetica, sans-serif; color:#23413A;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F7F2EA; padding:26px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px; background:#FFFFFF; border-radius:22px; overflow:hidden; border:1px solid #E4D8C8;">
+        <tr>
+          <td style="padding:28px 30px 12px;">
+            <div style="font-size:13px; color:#5E8C86; letter-spacing:.08em; text-transform:uppercase;">{{ envelope.report_period }}</div>
+            <h1 style="margin:10px 0 0; font-size:27px; line-height:1.25; color:#23413A;">Hello, {{ payload.clinician_name }}</h1>
+            <p style="margin:14px 0 0; font-size:15px; line-height:1.6; color:#31564E;">
+              Please review the appointments below. Each row is filtered from SimplePractice appointment status data where Progress Note Status is not LOCKED.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 30px;">
+            <div style="background:#F2E8DB; border-radius:18px; padding:20px;">
+              <h2 style="margin:0 0 14px; font-size:18px; color:#23413A;">Incomplete note snapshot</h2>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:10px;">
+                <tr>
+                  <td style="font-size:14px; color:#31564E;">Incomplete notes</td>
+                  <td align="right" style="font-size:18px; font-weight:700; color:#23413A;">{{ payload.incomplete_note_count }}</td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="font-size:14px; color:#31564E;">Recipient</td>
+                  <td align="right" style="font-size:18px; font-weight:700; color:#23413A;">{{ payload.recipient }}</td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 30px 26px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+              <thead>
+                <tr>
+                  <th align="left" style="padding:8px; background:#23413A; color:#FFFFFF;">Date of Service</th>
+                  <th align="left" style="padding:8px; background:#23413A; color:#FFFFFF;">Client</th>
+                  <th align="left" style="padding:8px; background:#23413A; color:#FFFFFF;">Progress Note Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in payload.rows %}
+                <tr>
+                  <td style="padding:8px; border-bottom:1px solid #E4D8C8;">{{ row.date_of_service }}</td>
+                  <td style="padding:8px; border-bottom:1px solid #E4D8C8;">{{ row.client_display_name }}</td>
+                  <td style="padding:8px; border-bottom:1px solid #E4D8C8;">{{ row.progress_note_status }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 30px; background:#F7F2EA; font-size:12px; line-height:1.5; color:#61746E;">
+            Dry-run notification. Client names are obfuscated and display values are not unique identifiers.
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

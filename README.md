@@ -177,6 +177,32 @@ The client attendance export includes a SimplePractice summary row such as:
 
 The insurance aging export is payer-level aggregate data and does not include a client identity column.
 
+### Incomplete Note Notifications
+
+The primary notification use case filters `appointment-status-report.csv` to appointments where:
+
+```text
+Progress Note Status <> LOCKED
+```
+
+It renders one dry-run clinician notification per clinician. Each notification lists:
+
+- Date of Service
+- obfuscated Client display name
+- Progress Note Status
+
+Run the notification renderer:
+
+```bash
+python -m iceflo_signal render-incomplete-note-notifications \
+  --input storage_sample/landing/clients/mindful_oregon/simple_practice/incoming/appointment-status-report.csv \
+  --recipient rdennis125@gmail.com \
+  --report-period "Weekly SimplePractice export" \
+  --output storage_sample/transformed/clients/mindful_oregon/simple_practice/curated/incomplete_note_notifications
+```
+
+The command writes browser-previewable HTML files and `.eml` email drafts under the output directory. Client display names are obfuscated before rendering, and the original source client names are not included in the notification output.
+
 ## Local Development
 
 ```bash

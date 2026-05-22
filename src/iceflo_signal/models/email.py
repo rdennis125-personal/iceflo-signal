@@ -62,3 +62,20 @@ class AlertReviewPayload(BaseModel):
     alert_message: str
     table_columns: list[str] = Field(default_factory=list)
     table_rows: list[list[Any]] = Field(default_factory=list)
+
+
+class IncompleteNoteRow(BaseModel):
+    """One privacy-safe row for incomplete note notification emails."""
+
+    date_of_service: str
+    client_display_name: str
+    progress_note_status: str
+
+
+class IncompleteNoteNotificationPayload(BaseModel):
+    """Payload for the Mindful incomplete note notification template."""
+
+    clinician_name: str
+    recipient: str
+    incomplete_note_count: int
+    rows: list[IncompleteNoteRow] = Field(default_factory=list)

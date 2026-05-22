@@ -8,6 +8,8 @@ from iceflo_signal.models.email import (
     ClinicianDigestPayload,
     EmailEnvelope,
     ExecSummaryPayload,
+    IncompleteNoteNotificationPayload,
+    IncompleteNoteRow,
     LabelValueItem,
 )
 
@@ -61,6 +63,22 @@ def test_template_factory_renders_all_mindful_templates() -> None:
                 table_rows=[["SYN-1002", "Incomplete"]],
             ),
         ),
+        factory.render(
+            "mindful_oregon.incomplete_note_notification",
+            envelope,
+            IncompleteNoteNotificationPayload(
+                clinician_name="Demo Clinician",
+                recipient="rdennis125@gmail.com",
+                incomplete_note_count=1,
+                rows=[
+                    IncompleteNoteRow(
+                        date_of_service="05/02/2026 2:30 PM",
+                        client_display_name="Jo Jo",
+                        progress_note_status="NO NOTE",
+                    )
+                ],
+            ),
+        ),
     ]
 
     assert all("<!doctype html>" in html for html in rendered)
@@ -69,6 +87,7 @@ def test_template_factory_renders_all_mindful_templates() -> None:
     assert "Avery Stone" in rendered[2]
     assert "Prepared from curated reporting data." in rendered[0]
     assert "SYN-1002" in rendered[3]
+    assert "Incomplete note snapshot" in rendered[4]
 
 
 def test_template_factory_rejects_payload_for_wrong_template() -> None:
