@@ -42,7 +42,12 @@ def _build_user_oauth_credentials(config: GoogleDriveSourceConfig) -> object:
 
     if token_path:
         token_path.parent.mkdir(parents=True, exist_ok=True)
-        token_path.write_text(credentials.to_json(), encoding="utf-8")
+        try:
+            token_path.write_text(credentials.to_json(), encoding="utf-8")
+        except OSError:
+            # Secret-mounted files in Cloud Run are read-only. The refreshed credentials
+            # remain valid for the current run even when they cannot be persisted.
+            pass
 
     return credentials
 

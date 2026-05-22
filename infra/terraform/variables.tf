@@ -40,3 +40,44 @@ variable "force_destroy" {
   type        = bool
   default     = false
 }
+
+variable "enable_project_services" {
+  description = "Enable Google Cloud APIs required by ICEFLO Signal. Set false if APIs are managed outside this Terraform."
+  type        = bool
+  default     = true
+}
+
+variable "artifact_registry_repository_id" {
+  description = "Artifact Registry Docker repository ID for ICEFLO Signal images."
+  type        = string
+  default     = "iceflo-signal"
+}
+
+variable "cloud_run_runtime_service_account_id" {
+  description = "Service account ID used by the Cloud Run job at runtime."
+  type        = string
+  default     = "iceflo-signal-runtime"
+}
+
+variable "cloud_run_job_name" {
+  description = "Cloud Run Job name for scheduled ICEFLO Signal work."
+  type        = string
+  default     = "iceflo-signal-job"
+}
+
+variable "cloud_run_image" {
+  description = "Container image URI to deploy to the Cloud Run Job."
+  type        = string
+}
+
+variable "cloud_run_job_args" {
+  description = "Default CLI args for the Cloud Run Job container."
+  type        = list(string)
+  default     = ["--help"]
+}
+
+variable "cloud_run_job_timeout" {
+  description = "Cloud Run Job task timeout."
+  type        = string
+  default     = "3600s"
+}
