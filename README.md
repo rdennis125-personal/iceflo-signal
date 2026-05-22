@@ -114,6 +114,50 @@ Use-case-ready 2D datasets such as:
 
 The `transform_base` work adds the first privacy-preserving SimplePractice CSV processing layer for the Mindful Oregon client namespace.
 
+## Google Drive Ingest Setup
+
+Client-owned Google Drive folders are configured per client, without committing folder IDs, OAuth tokens, or credential files.
+
+The Mindful Oregon ingest source config lives at:
+
+```text
+config/clients/mindful_oregon/ingest_sources.json
+```
+
+It defines a `mindful_oregon_simple_practice_drive` source that downloads CSV files into:
+
+```text
+storage_sample/landing/clients/mindful_oregon/simple_practice/incoming
+```
+
+For local user-account OAuth, set:
+
+```bash
+export ICEFLO_MINDFUL_OREGON_DRIVE_FOLDER_ID="google-drive-folder-id"
+export ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH="/local/secure/path/client_secret.json"
+export ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH="/local/secure/path/mindful_oregon_token.json"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:ICEFLO_MINDFUL_OREGON_DRIVE_FOLDER_ID = "google-drive-folder-id"
+$env:ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH = "C:\secure\iceflo-signal\client_secret.json"
+$env:ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH = "C:\secure\iceflo-signal\mindful_oregon_token.json"
+```
+
+The committed `.env.example` file documents the required variable names. Copy it to `.env` for local use or set the variables directly in your shell. The real `.env` file is ignored by git.
+
+Then run:
+
+```bash
+python -m iceflo_signal sync-google-drive \
+  --config config/clients/mindful_oregon/ingest_sources.json \
+  --source-id mindful_oregon_simple_practice_drive
+```
+
+The first OAuth run opens a browser consent flow and writes a refreshable token to the configured token path. Credential and token JSON files must stay outside git and should later move to Google Secret Manager or another managed secret store.
+
 Client-specific SimplePractice processors live under:
 
 ```text
