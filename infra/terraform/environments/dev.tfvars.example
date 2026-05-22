@@ -2,6 +2,12 @@ project_id       = "your-gcp-project-id"
 region           = "us-central1"
 storage_location = "US"
 root_bucket_name = "iceflo-signal-dev-your-unique-suffix"
+cloud_run_image  = "us-central1-docker.pkg.dev/your-gcp-project-id/iceflo-signal/iceflo-signal:bootstrap"
+
+artifact_registry_repository_id      = "iceflo-signal"
+cloud_run_runtime_service_account_id = "iceflo-signal-runtime"
+cloud_run_job_name                   = "iceflo-signal-job"
+cloud_run_job_args                   = ["--help"]
 
 labels = {
   app         = "iceflo-signal"
