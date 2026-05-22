@@ -5,8 +5,11 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from iceflo_signal.config import load_client_ingest_config
 from iceflo_signal.delivery.clients.mindful_oregon import IncompleteNoteNotificationRenderer
 from iceflo_signal.delivery.demo_renderer import render_template_demos
+from iceflo_signal.ingestion.google_auth import build_google_credentials
+from iceflo_signal.ingestion.google_drive import GoogleApiDriveClient, GoogleDriveIngestSource
 from iceflo_signal.ingestion.clients.mindful_oregon.simple_practice import AppointmentStatusProcessor
 from iceflo_signal.pipeline import run_local_pipeline
 from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteTransformer
@@ -81,6 +84,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory containing Jinja2 templates.",
     )
 
+    sync_drive = subparsers.add_parser(
+        "sync-google-drive",
+        help="Download matching files from a configured Google Drive source into landing.",
+    )
+    sync_drive.add_argument(
+        "--config",
+        default=Path("config/clients/mindful_oregon/ingest_sources.json"),
+        type=Path,
+        help="Path to a client ingest-source config file.",
+    )
+    sync_drive.add_argument(
+        "--source-id",
+        default="mindful_oregon_simple_practice_drive",
+        help="Configured ingest source id to sync.",
+    )
+
     return parser
 
 
@@ -117,6 +136,19 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Rendered {len(result.html_paths)} clinician HTML previews.")
         print(f"Rendered {len(result.eml_paths)} clinician email drafts for {args.recipient}.")
         print(f"Open {result.index_path} in a browser.")
+        return 0
+
+    if args.command == "sync-google-drive":
+        client_config = load_client_ingest_config(args.config)
+        source_config = client_config.get_source(args.source_id)
+        credentials = build_google_credentials(source_config)
+        downloaded = GoogleDriveIngestSource(
+            config=source_config,
+            drive_client=GoogleApiDriveClient(credentials),
+        ).sync()
+        print(f"Downloaded {len(downloaded)} files from {source_config.source_id}.")
+        for item in downloaded:
+            print(f"- {item.drive_file.name} -> {item.local_path}")
         return 0
 
     return 1

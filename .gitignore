@@ -19,6 +19,11 @@ __pycache__/
 # Environment files
 .env
 .env.*
+!.env.example
+client_secret*.json
+credentials*.json
+token*.json
+google_token*.json
 
 # Dependencies and build output
 node_modules/
