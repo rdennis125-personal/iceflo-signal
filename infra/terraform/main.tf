@@ -86,7 +86,7 @@ resource "google_storage_bucket_object" "prefix_placeholders" {
 
   bucket       = google_storage_bucket.root.name
   name         = "${each.value}.keep"
-  content      = ""
+  source       = "${path.module}/placeholders/.keep"
   content_type = "text/plain"
 }
 
@@ -134,9 +134,10 @@ resource "google_secret_manager_secret_iam_member" "runtime_secret_accessor" {
 }
 
 resource "google_cloud_run_v2_job" "iceflo_signal" {
-  name     = var.cloud_run_job_name
-  location = var.region
-  labels   = var.labels
+  name                = var.cloud_run_job_name
+  location            = var.region
+  labels              = var.labels
+  deletion_protection = false
 
   template {
     template {
