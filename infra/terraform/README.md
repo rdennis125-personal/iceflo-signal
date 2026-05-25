@@ -72,14 +72,22 @@ The Terraform service account needs permission to manage the resources above. Fo
 Terraform creates the Secret Manager secret containers, but does not commit or populate secret values. Add versions outside git:
 
 ```bash
-gcloud secrets versions add iceflo-mindful-oregon-test-root-folder-id --data-file=drive-folder-id.txt
-gcloud secrets versions add iceflo-mindful-oregon-prod-root-folder-id --data-file=drive-folder-id.txt
-gcloud secrets versions add iceflo-mindful-oregon-simple-practice-test-incoming-folder-id --data-file=drive-folder-id.txt
-gcloud secrets versions add iceflo-google-oauth-client-secrets --data-file=client_secret.json
-gcloud secrets versions add iceflo-mindful-oregon-google-token --data-file=mindful_oregon_token.json
+mkdir -p .local/secrets
+
+cp secret_templates/mindful_oregon_test_root_folder_id.txt .local/secrets/mindful_oregon_test_root_folder_id.txt
+cp secret_templates/mindful_oregon_prod_root_folder_id.txt .local/secrets/mindful_oregon_prod_root_folder_id.txt
+cp secret_templates/mindful_oregon_simple_practice_test_incoming_folder_id.txt .local/secrets/mindful_oregon_simple_practice_test_incoming_folder_id.txt
+cp secret_templates/google_oauth_client_secrets.json .local/secrets/google_oauth_client_secrets.json
+cp secret_templates/mindful_oregon_google_token.json .local/secrets/mindful_oregon_google_token.json
+
+gcloud secrets versions add iceflo-mindful-oregon-test-root-folder-id --data-file=.local/secrets/mindful_oregon_test_root_folder_id.txt
+gcloud secrets versions add iceflo-mindful-oregon-prod-root-folder-id --data-file=.local/secrets/mindful_oregon_prod_root_folder_id.txt
+gcloud secrets versions add iceflo-mindful-oregon-simple-practice-test-incoming-folder-id --data-file=.local/secrets/mindful_oregon_simple_practice_test_incoming_folder_id.txt
+gcloud secrets versions add iceflo-google-oauth-client-secrets --data-file=.local/secrets/google_oauth_client_secrets.json
+gcloud secrets versions add iceflo-mindful-oregon-google-token --data-file=.local/secrets/mindful_oregon_google_token.json
 ```
 
-The Cloud Run Job reads the folder ID as an environment variable and mounts the OAuth JSON values as files.
+The committed files under `secret_templates/` are bootstrap placeholders only. Copy them to `.local/secrets/`, replace placeholder values with real values when available, and keep `.local/` out of git. The Cloud Run Job reads folder IDs as environment variables and mounts the OAuth JSON values as files.
 
 ## GitHub Actions
 
