@@ -18,6 +18,7 @@ from iceflo_signal.models.email import (
     IncompleteNoteRow,
     LabelValueItem,
 )
+from iceflo_signal.storage import LocalFileRepository, ObjectRepository
 
 
 @dataclass(frozen=True)
@@ -34,10 +35,11 @@ def render_template_demos(
     output_dir: Path,
     template_dir: Path = Path("templates"),
     sender: str = "no-reply@iceflo-signal.example",
+    output_repository: ObjectRepository | None = None,
 ) -> DemoRenderResult:
     """Render hello-world/lorem-ipsum demos for every registered template."""
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    repository = output_repository or LocalFileRepository(output_dir)
     factory = EmailTemplateFactory(template_dir=template_dir)
 
     html_paths: list[Path] = []
@@ -48,23 +50,27 @@ def render_template_demos(
         slug = template_id.replace(".", "_")
 
         html_path = output_dir / f"{slug}.html"
-        html_path.write_text(html, encoding="utf-8")
+        html_key = html_path.as_posix() if output_repository else html_path.name
+        repository.write_text(html_key, html, content_type="text/html")
         html_paths.append(html_path)
 
         eml_path = output_dir / f"{slug}.eml"
-        eml_path.write_text(
+        eml_key = eml_path.as_posix() if output_repository else eml_path.name
+        repository.write_text(
+            eml_key,
             _build_eml(
                 recipient=recipient,
                 sender=sender,
                 subject=envelope.email_title,
                 html=html,
             ),
-            encoding="utf-8",
+            content_type="message/rfc822",
         )
         eml_paths.append(eml_path)
 
     index_path = output_dir / "index.html"
-    index_path.write_text(_build_index(html_paths, eml_paths, recipient), encoding="utf-8")
+    index_key = index_path.as_posix() if output_repository else index_path.name
+    repository.write_text(index_key, _build_index(html_paths, eml_paths, recipient), content_type="text/html")
     return DemoRenderResult(html_paths=html_paths, eml_paths=eml_paths, index_path=index_path)
 
 

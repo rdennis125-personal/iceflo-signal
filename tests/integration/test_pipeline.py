@@ -5,7 +5,7 @@ from iceflo_signal.pipeline import run_local_pipeline
 
 def test_run_local_pipeline_writes_outputs(tmp_path: Path) -> None:
     result = run_local_pipeline(
-        Path("storage_sample/landing/incoming/sample_sessions.csv"),
+        Path("storage_sample/sources/sample_sessions/test/landing/incoming/sample_sessions.csv"),
         tmp_path,
         Path("templates"),
     )

@@ -22,36 +22,57 @@ Manual CSV Export
   -> Delivery Layer
 ```
 
-## Storage Zones
+## Client Data Layer
 
 ```text
-/storage
-  /landing
-    /clients
-      /mindful_oregon
-        /simple_practice
+{client_data_root}
+  /sources
+    /{source_system}
+      /{environment}
+        /landing
           /incoming
           /archive
           /rejected
 
-  /transformed
-    /clients
-      /mindful_oregon
-        /simple_practice
-          /raw
-          /normalized
-          /facts
-          /dimensions
-          /curated
+  /edw
+    /{environment}
+      /raw
+      /normalized
+      /facts
+      /dimensions
+      /curated
+      /presentation
 
   /utility
-    /clients
-      /mindful_oregon
-        /simple_practice
-          /config
-          /schemas
-          /templates
-          /reference
+    /{environment}
+      /config
+      /schemas
+      /templates
+      /reference
+```
+
+Each ICEFLO client owns a data root in its own tenant and can choose the backing technology for that root, such as Google Drive now, GCS later, or a future database-backed repository. Source-system landing zones are source-specific. EDW layers are client-level because transformed facts, dimensions, curated datasets, and presentation outputs may combine multiple source systems.
+
+Mindful Oregon's initial test layout is:
+
+```text
+mindful_oregon_data_root
+  /sources
+    /simple_practice
+      /test
+        /landing
+          /incoming
+          /archive
+          /rejected
+
+  /edw
+    /test
+      /raw
+      /normalized
+      /facts
+      /dimensions
+      /curated
+      /presentation
 ```
 
 ## Technology Stack
@@ -72,6 +93,7 @@ Manual CSV Export
 - CSV-first for portability
 - Python-first for transferability
 - Configuration-driven processing
+- Repository-pattern storage access with dependency injection
 - No hardcoded clinician/report rules
 - Immutable raw file retention
 - Repeatable transformations
@@ -122,18 +144,21 @@ The Mindful Oregon ingest source config lives at:
 
 ```text
 config/clients/mindful_oregon/ingest_sources.json
+config/clients/mindful_oregon/data_layers.json
 ```
 
 It defines a `mindful_oregon_simple_practice_drive` source that downloads CSV files into:
 
 ```text
-storage_sample/landing/clients/mindful_oregon/simple_practice/incoming
+sources/simple_practice/test/landing/incoming
 ```
 
 For local user-account OAuth, set:
 
 ```bash
-export ICEFLO_MINDFUL_OREGON_DRIVE_FOLDER_ID="google-drive-folder-id"
+export ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID="google-drive-root-folder-id"
+export ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID="google-drive-root-folder-id"
+export ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID="google-drive-incoming-folder-id"
 export ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH="/local/secure/path/client_secret.json"
 export ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH="/local/secure/path/mindful_oregon_token.json"
 ```
@@ -141,7 +166,9 @@ export ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH="/local/secure/path/mindful_orego
 On Windows PowerShell:
 
 ```powershell
-$env:ICEFLO_MINDFUL_OREGON_DRIVE_FOLDER_ID = "google-drive-folder-id"
+$env:ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID = "google-drive-root-folder-id"
+$env:ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID = "google-drive-root-folder-id"
+$env:ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID = "google-drive-incoming-folder-id"
 $env:ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH = "C:\secure\iceflo-signal\client_secret.json"
 $env:ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH = "C:\secure\iceflo-signal\mindful_oregon_token.json"
 ```
@@ -153,10 +180,26 @@ Then run:
 ```bash
 python -m iceflo_signal sync-google-drive \
   --config config/clients/mindful_oregon/ingest_sources.json \
+  --data-layer-config config/clients/mindful_oregon/data_layers.json \
   --source-id mindful_oregon_simple_practice_drive
 ```
 
 The first OAuth run opens a browser consent flow and writes a refreshable token to the configured token path. Credential and token JSON files must stay outside git and should later move to Google Secret Manager or another managed secret store.
+
+## Storage Repository Pattern
+
+Pipeline data access should go through repository interfaces under:
+
+```text
+src/iceflo_signal/storage/
+```
+
+The current repository implementations are:
+
+- `LocalFileRepository`
+- `GoogleDriveObjectRepository`
+
+Workflows should inject repositories into ingestion, pipeline, and delivery code instead of hardcoding filesystem, Google Drive, GCS, or database calls into transformation logic. This lets us use Google Drive as the data layer now, replace it with GCS later, and move to a database if scale or scope requires it.
 
 Client-specific SimplePractice processors live under:
 
@@ -239,10 +282,10 @@ Run the notification renderer:
 
 ```bash
 python -m iceflo_signal render-incomplete-note-notifications \
-  --input storage_sample/landing/clients/mindful_oregon/simple_practice/incoming/appointment-status-report.csv \
+  --input storage_sample/sources/simple_practice/test/landing/incoming/appointment-status-report.csv \
   --recipient rdennis125@gmail.com \
   --report-period "Weekly SimplePractice export" \
-  --output storage_sample/transformed/clients/mindful_oregon/simple_practice/curated/incomplete_note_notifications
+  --output storage_sample/edw/test/presentation/incomplete_note_notifications
 ```
 
 The command writes browser-previewable HTML files and `.eml` email drafts under the output directory. Client display names are obfuscated before rendering, and the original source client names are not included in the notification output.
@@ -260,19 +303,19 @@ pytest
 Run the sample pipeline:
 
 ```bash
-python -m iceflo_signal run-local --input storage_sample/landing/incoming/sample_sessions.csv --output storage_sample/transformed
+python -m iceflo_signal run-local --input storage_sample/sources/sample_sessions/test/landing/incoming/sample_sessions.csv --output storage_sample/edw/test
 ```
 
 Render local demo email previews:
 
 ```bash
-python -m iceflo_signal render-template-demo --recipient rdennis125@gmail.com --output storage_sample/transformed/curated/template_demos
+python -m iceflo_signal render-template-demo --recipient rdennis125@gmail.com --output storage_sample/edw/test/presentation/template_demos
 ```
 
 The demo command writes browser-previewable HTML and `.eml` draft files for each registered template:
 
 ```text
-storage_sample/transformed/curated/template_demos/
+storage_sample/edw/test/presentation/template_demos/
   index.html
   mindful_oregon_alert_review.html
   mindful_oregon_alert_review.eml
@@ -284,7 +327,7 @@ storage_sample/transformed/curated/template_demos/
   mindful_oregon_exec_summary.eml
 ```
 
-Open `storage_sample/transformed/curated/template_demos/index.html` in a browser to inspect all demo templates. The `.eml` files are local email drafts addressed to the configured recipient; the project does not send email yet.
+Open `storage_sample/edw/test/presentation/template_demos/index.html` in a browser to inspect all demo templates. The `.eml` files are local email drafts addressed to the configured recipient; the project does not send email yet.
 
 ## Security Notes
 

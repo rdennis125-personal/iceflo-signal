@@ -1,0 +1,57 @@
+{
+  "client_key": "mindful_oregon",
+  "repository_roots": [
+    {
+      "root_id": "mindful_oregon_test_drive",
+      "environment": "test",
+      "repository_type": "google_drive",
+      "root_ref_env": "ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID"
+    },
+    {
+      "root_id": "mindful_oregon_prod_drive",
+      "environment": "prod",
+      "repository_type": "google_drive",
+      "root_ref_env": "ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID"
+    }
+  ],
+  "source_layers": [
+    {
+      "source_system": "simple_practice",
+      "environment": "test",
+      "root_id": "mindful_oregon_test_drive",
+      "landing_prefix": "sources/simple_practice/test/landing"
+    },
+    {
+      "source_system": "simple_practice",
+      "environment": "prod",
+      "root_id": "mindful_oregon_prod_drive",
+      "landing_prefix": "sources/simple_practice/prod/landing"
+    }
+  ],
+  "edw_layers": [
+    {
+      "environment": "test",
+      "root_id": "mindful_oregon_test_drive",
+      "prefixes": {
+        "raw": "edw/test/raw",
+        "normalized": "edw/test/normalized",
+        "facts": "edw/test/facts",
+        "dimensions": "edw/test/dimensions",
+        "curated": "edw/test/curated",
+        "presentation": "edw/test/presentation"
+      }
+    },
+    {
+      "environment": "prod",
+      "root_id": "mindful_oregon_prod_drive",
+      "prefixes": {
+        "raw": "edw/prod/raw",
+        "normalized": "edw/prod/normalized",
+        "facts": "edw/prod/facts",
+        "dimensions": "edw/prod/dimensions",
+        "curated": "edw/prod/curated",
+        "presentation": "edw/prod/presentation"
+      }
+    }
+  ]
+}

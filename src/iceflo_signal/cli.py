@@ -5,13 +5,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from iceflo_signal.config import load_client_ingest_config
+from iceflo_signal.config import load_client_data_layer_config, load_client_ingest_config
 from iceflo_signal.delivery.clients.mindful_oregon import IncompleteNoteNotificationRenderer
 from iceflo_signal.delivery.demo_renderer import render_template_demos
 from iceflo_signal.ingestion.google_auth import build_google_credentials
 from iceflo_signal.ingestion.google_drive import GoogleApiDriveClient, GoogleDriveIngestSource
 from iceflo_signal.ingestion.clients.mindful_oregon.simple_practice import AppointmentStatusProcessor
 from iceflo_signal.pipeline import run_local_pipeline
+from iceflo_signal.storage import GoogleApiDriveObjectClient, GoogleDriveObjectRepository
 from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteTransformer
 
 
@@ -40,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render_demo.add_argument(
         "--output",
-        default=Path("storage_sample/transformed/curated/template_demos"),
+        default=Path("storage_sample/edw/test/presentation/template_demos"),
         type=Path,
         help="Directory where demo HTML and .eml files will be written.",
     )
@@ -63,7 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     incomplete_notes.add_argument(
         "--output",
-        default=Path("storage_sample/transformed/clients/mindful_oregon/simple_practice/curated/incomplete_note_notifications"),
+        default=Path("storage_sample/edw/test/presentation/incomplete_note_notifications"),
         type=Path,
         help="Directory where notification HTML and .eml drafts will be written.",
     )
@@ -93,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("config/clients/mindful_oregon/ingest_sources.json"),
         type=Path,
         help="Path to a client ingest-source config file.",
+    )
+    sync_drive.add_argument(
+        "--data-layer-config",
+        default=Path("config/clients/mindful_oregon/data_layers.json"),
+        type=Path,
+        help="Path to a client data-layer config file.",
     )
     sync_drive.add_argument(
         "--source-id",
@@ -141,10 +148,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "sync-google-drive":
         client_config = load_client_ingest_config(args.config)
         source_config = client_config.get_source(args.source_id)
+        data_layer_config = load_client_data_layer_config(args.data_layer_config)
+        if not source_config.repository_root_id:
+            raise ValueError(f"{source_config.source_id} must define repository_root_id.")
+        repository_root = data_layer_config.repository_root(source_config.repository_root_id)
         credentials = build_google_credentials(source_config)
         downloaded = GoogleDriveIngestSource(
             config=source_config,
             drive_client=GoogleApiDriveClient(credentials),
+            landing_repository=GoogleDriveObjectRepository(
+                GoogleApiDriveObjectClient(credentials, repository_root.root_ref())
+            ),
         ).sync()
         print(f"Downloaded {len(downloaded)} files from {source_config.source_id}.")
         for item in downloaded:
