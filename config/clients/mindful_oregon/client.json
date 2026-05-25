@@ -1,0 +1,10 @@
+{
+  "client_key": "mindful_oregon",
+  "display_name": "Mindful Oregon",
+  "default_environment": "test",
+  "config_files": {
+    "data_layers": "data_layers.json",
+    "ingest_sources": "ingest_sources.json",
+    "workflows": "workflows.json"
+  }
+}

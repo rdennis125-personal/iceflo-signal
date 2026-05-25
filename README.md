@@ -201,6 +201,31 @@ The current repository implementations are:
 
 Workflows should inject repositories into ingestion, pipeline, and delivery code instead of hardcoding filesystem, Google Drive, GCS, or database calls into transformation logic. This lets us use Google Drive as the data layer now, replace it with GCS later, and move to a database if scale or scope requires it.
 
+## Client Onboarding Registry
+
+Client onboarding is intended to be configuration-first. A client package lives under:
+
+```text
+config/clients/{client_key}/
+  client.json
+  data_layers.json
+  ingest_sources.json
+  workflows.json
+```
+
+The core CLI can run a configured workflow without a client-specific command:
+
+```bash
+python -m iceflo_signal run-workflow \
+  --client mindful_oregon \
+  --environment test \
+  --workflow incomplete_note_notifications \
+  --recipient rdennis125@gmail.com \
+  --storage-root storage_sample
+```
+
+Onboarding a new client should not require a core redeploy when the client uses an already-supported repository type, source processor, transform, and workflow type. A code change is only expected when a client introduces a new source-system adapter, transformation behavior, delivery channel, or other platform capability.
+
 Client-specific SimplePractice processors live under:
 
 ```text
