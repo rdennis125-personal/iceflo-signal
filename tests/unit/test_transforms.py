@@ -10,7 +10,7 @@ from iceflo_signal.transforms.sessions import (
 
 
 def test_transforms_build_expected_outputs() -> None:
-    raw = read_sessions_csv(Path("storage_sample/landing/incoming/sample_sessions.csv"))
+    raw = read_sessions_csv(Path("storage_sample/sources/sample_sessions/test/landing/incoming/sample_sessions.csv"))
     normalized = normalize_sessions(raw)
 
     clinicians = build_dim_clinician(normalized)

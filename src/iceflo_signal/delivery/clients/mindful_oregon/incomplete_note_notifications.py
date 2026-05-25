@@ -9,6 +9,7 @@ from pathlib import Path
 
 from iceflo_signal.delivery.template_factory import EmailTemplateFactory
 from iceflo_signal.models.email import EmailEnvelope, IncompleteNoteNotificationPayload, IncompleteNoteRow
+from iceflo_signal.storage import LocalFileRepository, ObjectRepository
 from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteDigest
 
 
@@ -38,10 +39,11 @@ class IncompleteNoteNotificationRenderer:
         output_dir: Path,
         recipient: str,
         report_period: str,
+        output_repository: ObjectRepository | None = None,
     ) -> NotificationRenderResult:
         """Write HTML previews and .eml drafts for clinician incomplete-note digests."""
 
-        output_dir.mkdir(parents=True, exist_ok=True)
+        repository = output_repository or LocalFileRepository(output_dir)
         html_paths: list[Path] = []
         eml_paths: list[Path] = []
 
@@ -70,23 +72,27 @@ class IncompleteNoteNotificationRenderer:
             slug = _slugify(digest.clinician_name)
 
             html_path = output_dir / f"{slug}_incomplete_notes.html"
-            html_path.write_text(rendered_html, encoding="utf-8")
+            html_key = html_path.as_posix() if output_repository else html_path.name
+            repository.write_text(html_key, rendered_html, content_type="text/html")
             html_paths.append(html_path)
 
             eml_path = output_dir / f"{slug}_incomplete_notes.eml"
-            eml_path.write_text(
+            eml_key = eml_path.as_posix() if output_repository else eml_path.name
+            repository.write_text(
+                eml_key,
                 _build_eml(
                     recipient=recipient,
                     sender=self._sender,
                     subject=subject,
                     rendered_html=rendered_html,
                 ),
-                encoding="utf-8",
+                content_type="message/rfc822",
             )
             eml_paths.append(eml_path)
 
         index_path = output_dir / "index.html"
-        index_path.write_text(_index_html(html_paths, eml_paths, recipient), encoding="utf-8")
+        index_key = index_path.as_posix() if output_repository else index_path.name
+        repository.write_text(index_key, _index_html(html_paths, eml_paths, recipient), content_type="text/html")
         return NotificationRenderResult(html_paths=html_paths, eml_paths=eml_paths, index_path=index_path)
 
 

@@ -8,22 +8,36 @@ This Terraform scaffold creates the initial Google Cloud resources for ICEFLO Si
 - Secret Manager placeholder secrets for Google Drive ingest.
 - Cloud Run Job shell for scheduled ICEFLO Signal execution.
 
-The storage layout mirrors `storage_sample/`:
+The storage layout mirrors the client-owned EDW structure used by `storage_sample/`:
 
 ```text
 gs://<root_bucket_name>/
-  landing/clients/mindful_oregon/simple_practice/incoming/
-  landing/clients/mindful_oregon/simple_practice/archive/
-  landing/clients/mindful_oregon/simple_practice/rejected/
-  transformed/clients/mindful_oregon/simple_practice/raw/
-  transformed/clients/mindful_oregon/simple_practice/normalized/
-  transformed/clients/mindful_oregon/simple_practice/facts/
-  transformed/clients/mindful_oregon/simple_practice/dimensions/
-  transformed/clients/mindful_oregon/simple_practice/curated/
-  utility/clients/mindful_oregon/simple_practice/config/
-  utility/clients/mindful_oregon/simple_practice/schemas/
-  utility/clients/mindful_oregon/simple_practice/templates/
-  utility/clients/mindful_oregon/simple_practice/reference/
+  sources/simple_practice/test/landing/incoming/
+  sources/simple_practice/test/landing/archive/
+  sources/simple_practice/test/landing/rejected/
+  sources/simple_practice/prod/landing/incoming/
+  sources/simple_practice/prod/landing/archive/
+  sources/simple_practice/prod/landing/rejected/
+  edw/test/raw/
+  edw/test/normalized/
+  edw/test/facts/
+  edw/test/dimensions/
+  edw/test/curated/
+  edw/test/presentation/
+  edw/prod/raw/
+  edw/prod/normalized/
+  edw/prod/facts/
+  edw/prod/dimensions/
+  edw/prod/curated/
+  edw/prod/presentation/
+  utility/test/config/
+  utility/test/schemas/
+  utility/test/templates/
+  utility/test/reference/
+  utility/prod/config/
+  utility/prod/schemas/
+  utility/prod/templates/
+  utility/prod/reference/
 ```
 
 ## Usage
@@ -58,7 +72,9 @@ The Terraform service account needs permission to manage the resources above. Fo
 Terraform creates the Secret Manager secret containers, but does not commit or populate secret values. Add versions outside git:
 
 ```bash
-gcloud secrets versions add iceflo-mindful-oregon-drive-folder-id --data-file=drive-folder-id.txt
+gcloud secrets versions add iceflo-mindful-oregon-test-root-folder-id --data-file=drive-folder-id.txt
+gcloud secrets versions add iceflo-mindful-oregon-prod-root-folder-id --data-file=drive-folder-id.txt
+gcloud secrets versions add iceflo-mindful-oregon-simple-practice-test-incoming-folder-id --data-file=drive-folder-id.txt
 gcloud secrets versions add iceflo-google-oauth-client-secrets --data-file=client_secret.json
 gcloud secrets versions add iceflo-mindful-oregon-google-token --data-file=mindful_oregon_token.json
 ```

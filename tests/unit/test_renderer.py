@@ -7,7 +7,7 @@ from iceflo_signal.transforms.sessions import normalize_sessions
 
 
 def test_render_clinician_followups(tmp_path: Path) -> None:
-    raw = read_sessions_csv(Path("storage_sample/landing/incoming/sample_sessions.csv"))
+    raw = read_sessions_csv(Path("storage_sample/sources/sample_sessions/test/landing/incoming/sample_sessions.csv"))
     curated = build_clinician_documentation_status(normalize_sessions(raw))
 
     paths = render_clinician_followups(curated, Path("templates"), tmp_path)

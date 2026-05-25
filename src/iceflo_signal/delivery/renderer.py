@@ -8,11 +8,18 @@ from pathlib import Path
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from iceflo_signal.storage import LocalFileRepository, ObjectRepository
 
-def render_clinician_followups(curated: pd.DataFrame, template_dir: Path, output_dir: Path) -> list[Path]:
+
+def render_clinician_followups(
+    curated: pd.DataFrame,
+    template_dir: Path,
+    output_dir: Path,
+    output_repository: ObjectRepository | None = None,
+) -> list[Path]:
     """Render one dry-run HTML notification per clinician."""
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    repository = output_repository or LocalFileRepository(output_dir)
     environment = Environment(
         loader=FileSystemLoader(str(template_dir)),
         autoescape=select_autoescape(["html", "xml"]),
@@ -23,7 +30,8 @@ def render_clinician_followups(curated: pd.DataFrame, template_dir: Path, output
     for row in curated.to_dict(orient="records"):
         filename = f"{_slugify(row['clinician_id'])}_documentation_followup.html"
         output_path = output_dir / filename
-        output_path.write_text(template.render(report=row), encoding="utf-8")
+        output_key = output_path.as_posix() if output_repository else filename
+        repository.write_text(output_key, template.render(report=row), content_type="text/html")
         rendered_paths.append(output_path)
 
     return rendered_paths

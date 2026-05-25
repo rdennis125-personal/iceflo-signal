@@ -10,22 +10,38 @@ locals {
   ])
 
   storage_prefixes = toset([
-    "landing/clients/mindful_oregon/simple_practice/incoming/",
-    "landing/clients/mindful_oregon/simple_practice/archive/",
-    "landing/clients/mindful_oregon/simple_practice/rejected/",
-    "transformed/clients/mindful_oregon/simple_practice/raw/",
-    "transformed/clients/mindful_oregon/simple_practice/normalized/",
-    "transformed/clients/mindful_oregon/simple_practice/facts/",
-    "transformed/clients/mindful_oregon/simple_practice/dimensions/",
-    "transformed/clients/mindful_oregon/simple_practice/curated/",
-    "utility/clients/mindful_oregon/simple_practice/config/",
-    "utility/clients/mindful_oregon/simple_practice/schemas/",
-    "utility/clients/mindful_oregon/simple_practice/templates/",
-    "utility/clients/mindful_oregon/simple_practice/reference/",
+    "sources/simple_practice/test/landing/incoming/",
+    "sources/simple_practice/test/landing/archive/",
+    "sources/simple_practice/test/landing/rejected/",
+    "sources/simple_practice/prod/landing/incoming/",
+    "sources/simple_practice/prod/landing/archive/",
+    "sources/simple_practice/prod/landing/rejected/",
+    "edw/test/raw/",
+    "edw/test/normalized/",
+    "edw/test/facts/",
+    "edw/test/dimensions/",
+    "edw/test/curated/",
+    "edw/test/presentation/",
+    "edw/prod/raw/",
+    "edw/prod/normalized/",
+    "edw/prod/facts/",
+    "edw/prod/dimensions/",
+    "edw/prod/curated/",
+    "edw/prod/presentation/",
+    "utility/test/config/",
+    "utility/test/schemas/",
+    "utility/test/templates/",
+    "utility/test/reference/",
+    "utility/prod/config/",
+    "utility/prod/schemas/",
+    "utility/prod/templates/",
+    "utility/prod/reference/",
   ])
 
   secret_ids = toset([
-    "iceflo-mindful-oregon-drive-folder-id",
+    "iceflo-mindful-oregon-test-root-folder-id",
+    "iceflo-mindful-oregon-prod-root-folder-id",
+    "iceflo-mindful-oregon-simple-practice-test-incoming-folder-id",
     "iceflo-google-oauth-client-secrets",
     "iceflo-mindful-oregon-google-token",
   ])
@@ -55,7 +71,7 @@ resource "google_storage_bucket" "root" {
   lifecycle_rule {
     condition {
       age            = 30
-      matches_prefix = ["landing/clients/mindful_oregon/simple_practice/archive/"]
+      matches_prefix = ["sources/simple_practice/prod/landing/archive/"]
     }
 
     action {
@@ -137,10 +153,30 @@ resource "google_cloud_run_v2_job" "iceflo_signal" {
         }
 
         env {
-          name = "ICEFLO_MINDFUL_OREGON_DRIVE_FOLDER_ID"
+          name = "ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID"
           value_source {
             secret_key_ref {
-              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-drive-folder-id"].secret_id
+              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-test-root-folder-id"].secret_id
+              version = "latest"
+            }
+          }
+        }
+
+        env {
+          name = "ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-prod-root-folder-id"].secret_id
+              version = "latest"
+            }
+          }
+        }
+
+        env {
+          name = "ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-simple-practice-test-incoming-folder-id"].secret_id
               version = "latest"
             }
           }
