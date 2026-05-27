@@ -1,4 +1,6 @@
 locals {
+  mindful_oregon_prod_data_root = var.mindful_oregon_prod_data_root != "" ? var.mindful_oregon_prod_data_root : var.mindful_oregon_test_data_root
+
   project_services = toset([
     "artifactregistry.googleapis.com",
     "cloudbuild.googleapis.com",
@@ -39,12 +41,17 @@ locals {
   ])
 
   secret_ids = toset([
-    "iceflo-mindful-oregon-test-root-folder-id",
-    "iceflo-mindful-oregon-prod-root-folder-id",
     "iceflo-mindful-oregon-simple-practice-test-incoming-folder-id",
     "iceflo-google-oauth-client-secrets",
     "iceflo-mindful-oregon-google-token",
   ])
+
+  cloud_run_jobs = length(var.cloud_run_jobs) > 0 ? var.cloud_run_jobs : {
+    iceflo_signal = {
+      name = var.cloud_run_job_name
+      args = var.cloud_run_job_args
+    }
+  }
 }
 
 resource "google_project_service" "required" {
@@ -55,8 +62,10 @@ resource "google_project_service" "required" {
   disable_on_destroy = false
 }
 
-resource "google_storage_bucket" "root" {
-  name                        = var.root_bucket_name
+resource "google_storage_bucket" "client_data_root" {
+  count = var.manage_client_data_root_bucket ? 1 : 0
+
+  name                        = var.mindful_oregon_test_data_root
   location                    = var.storage_location
   storage_class               = var.storage_class
   labels                      = var.labels
@@ -81,13 +90,21 @@ resource "google_storage_bucket" "root" {
   }
 }
 
+data "google_storage_bucket" "client_data_root" {
+  count = var.manage_client_data_root_bucket ? 0 : 1
+
+  name = var.mindful_oregon_test_data_root
+}
+
 resource "google_storage_bucket_object" "prefix_placeholders" {
   for_each = local.storage_prefixes
 
-  bucket       = google_storage_bucket.root.name
+  bucket       = var.mindful_oregon_test_data_root
   name         = "${each.value}.keep"
   source       = "${path.module}/placeholders/.keep"
   content_type = "text/plain"
+
+  depends_on = [google_storage_bucket.client_data_root]
 }
 
 resource "google_artifact_registry_repository" "containers" {
@@ -107,9 +124,11 @@ resource "google_service_account" "cloud_run_runtime" {
 }
 
 resource "google_storage_bucket_iam_member" "runtime_storage_object_admin" {
-  bucket = google_storage_bucket.root.name
+  bucket = var.mindful_oregon_test_data_root
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
+
+  depends_on = [google_storage_bucket.client_data_root]
 }
 
 resource "google_secret_manager_secret" "runtime" {
@@ -134,7 +153,9 @@ resource "google_secret_manager_secret_iam_member" "runtime_secret_accessor" {
 }
 
 resource "google_cloud_run_v2_job" "iceflo_signal" {
-  name                = var.cloud_run_job_name
+  for_each = local.cloud_run_jobs
+
+  name                = each.value.name
   location            = var.region
   labels              = var.labels
   deletion_protection = false
@@ -146,31 +167,16 @@ resource "google_cloud_run_v2_job" "iceflo_signal" {
 
       containers {
         image = var.cloud_run_image
-        args  = var.cloud_run_job_args
+        args  = each.value.args
 
         env {
-          name  = "ICEFLO_GCS_ROOT_BUCKET"
-          value = google_storage_bucket.root.name
+          name  = "ICEFLO_MINDFUL_OREGON_TEST_DATA_ROOT"
+          value = var.mindful_oregon_test_data_root
         }
 
         env {
-          name = "ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID"
-          value_source {
-            secret_key_ref {
-              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-test-root-folder-id"].secret_id
-              version = "latest"
-            }
-          }
-        }
-
-        env {
-          name = "ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID"
-          value_source {
-            secret_key_ref {
-              secret  = google_secret_manager_secret.runtime["iceflo-mindful-oregon-prod-root-folder-id"].secret_id
-              version = "latest"
-            }
-          }
+          name  = "ICEFLO_MINDFUL_OREGON_PROD_DATA_ROOT"
+          value = local.mindful_oregon_prod_data_root
         }
 
         env {

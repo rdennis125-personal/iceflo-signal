@@ -1,17 +1,19 @@
 # ICEFLO Signal Terraform
 
-This Terraform scaffold creates the initial Google Cloud resources for ICEFLO Signal:
+This Terraform scaffold creates the initial Google Cloud runtime resources for ICEFLO Signal:
 
-- Google Cloud Storage bucket and prefix placeholders.
+- Optional Google Cloud Storage client data-root bucket and prefix placeholders.
 - Artifact Registry Docker repository.
 - Cloud Run runtime service account.
 - Secret Manager placeholder secrets for Google Drive ingest.
-- Cloud Run Job shell for scheduled ICEFLO Signal execution.
+- Cloud Run Jobs for scheduled ICEFLO Signal ingest and workflow execution.
 
-The storage layout mirrors the client-owned EDW structure used by `storage_sample/`:
+Storage is client-provided and selected by client configuration. This Terraform module configures the GCS implementation of that contract for the first deployment. For development, Terraform can create a dedicated client data-root bucket with `manage_client_data_root_bucket = true`. For a real client-provided GCS bucket, set `manage_client_data_root_bucket = false` and provide the existing bucket name.
+
+The storage layout mirrors the client data root used by `storage_sample/`:
 
 ```text
-gs://<root_bucket_name>/
+gs://<mindful_oregon_test_data_root>/
   sources/simple_practice/test/landing/incoming/
   sources/simple_practice/test/landing/archive/
   sources/simple_practice/test/landing/rejected/
@@ -74,20 +76,32 @@ Terraform creates the Secret Manager secret containers, but does not commit or p
 ```bash
 mkdir -p .local/secrets
 
-cp secret_templates/mindful_oregon_test_root_folder_id.txt .local/secrets/mindful_oregon_test_root_folder_id.txt
-cp secret_templates/mindful_oregon_prod_root_folder_id.txt .local/secrets/mindful_oregon_prod_root_folder_id.txt
 cp secret_templates/mindful_oregon_simple_practice_test_incoming_folder_id.txt .local/secrets/mindful_oregon_simple_practice_test_incoming_folder_id.txt
 cp secret_templates/google_oauth_client_secrets.json .local/secrets/google_oauth_client_secrets.json
 cp secret_templates/mindful_oregon_google_token.json .local/secrets/mindful_oregon_google_token.json
 
-gcloud secrets versions add iceflo-mindful-oregon-test-root-folder-id --data-file=.local/secrets/mindful_oregon_test_root_folder_id.txt
-gcloud secrets versions add iceflo-mindful-oregon-prod-root-folder-id --data-file=.local/secrets/mindful_oregon_prod_root_folder_id.txt
 gcloud secrets versions add iceflo-mindful-oregon-simple-practice-test-incoming-folder-id --data-file=.local/secrets/mindful_oregon_simple_practice_test_incoming_folder_id.txt
 gcloud secrets versions add iceflo-google-oauth-client-secrets --data-file=.local/secrets/google_oauth_client_secrets.json
 gcloud secrets versions add iceflo-mindful-oregon-google-token --data-file=.local/secrets/mindful_oregon_google_token.json
 ```
 
-The committed files under `secret_templates/` are bootstrap placeholders only. Copy them to `.local/secrets/`, replace placeholder values with real values when available, and keep `.local/` out of git. The Cloud Run Job reads folder IDs as environment variables and mounts the OAuth JSON values as files.
+The committed files under `secret_templates/` are bootstrap placeholders only. Copy them to `.local/secrets/`, replace placeholder values with real values when available, and keep `.local/` out of git. The Cloud Run Jobs read the customer source landing folder ID as an environment variable and mount the OAuth JSON values as files.
+
+## Cloud Run Jobs
+
+Set `cloud_run_jobs` to deploy one operational job per client/environment/use case. The dev example creates:
+
+```text
+iceflo-mindful-oregon-test-simple-practice-ingest
+iceflo-mindful-oregon-test-incomplete-note-notifications
+```
+
+Run them manually with:
+
+```bash
+gcloud run jobs execute iceflo-mindful-oregon-test-simple-practice-ingest --region <region> --wait
+gcloud run jobs execute iceflo-mindful-oregon-test-incomplete-note-notifications --region <region> --wait
+```
 
 ## GitHub Actions
 
@@ -96,7 +110,7 @@ The deployment workflow expects these GitHub repository variables:
 - `GCP_PROJECT_ID`
 - `GCP_REGION`
 - `ARTIFACT_REGISTRY_REPOSITORY`
-- `CLOUD_RUN_JOB`
+- `CLOUD_RUN_JOBS` as a comma-separated list of Cloud Run Job names
 
 And these GitHub repository secrets:
 

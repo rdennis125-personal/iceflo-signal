@@ -1,13 +1,38 @@
 project_id       = "your-gcp-project-id"
 region           = "us-central1"
 storage_location = "US"
-root_bucket_name = "iceflo-signal-dev-your-unique-suffix"
+mindful_oregon_test_data_root  = "mindful-oregon-test-data-root-your-unique-suffix"
+mindful_oregon_prod_data_root  = "mindful-oregon-prod-data-root-your-unique-suffix"
+manage_client_data_root_bucket = true
 cloud_run_image  = "us-central1-docker.pkg.dev/your-gcp-project-id/iceflo-signal/iceflo-signal:bootstrap"
 
 artifact_registry_repository_id      = "iceflo-signal"
 cloud_run_runtime_service_account_id = "iceflo-signal-runtime"
-cloud_run_job_name                   = "iceflo-signal-job"
-cloud_run_job_args                   = ["--help"]
+
+cloud_run_jobs = {
+  mindful_oregon_test_simple_practice_ingest = {
+    name = "iceflo-mindful-oregon-test-simple-practice-ingest"
+    args = [
+      "sync-google-drive",
+      "--config", "config/clients/mindful_oregon/ingest_sources.json",
+      "--data-layer-config", "config/clients/mindful_oregon/data_layers.json",
+      "--source-id", "mindful_oregon_simple_practice_drive",
+      "--destination-repository", "configured"
+    ]
+  }
+
+  mindful_oregon_test_incomplete_note_notifications = {
+    name = "iceflo-mindful-oregon-test-incomplete-note-notifications"
+    args = [
+      "run-workflow",
+      "--client", "mindful_oregon",
+      "--environment", "test",
+      "--workflow", "incomplete_note_notifications",
+      "--repository", "configured",
+      "--recipient", "rdennis125@gmail.com"
+    ]
+  }
+}
 
 labels = {
   app         = "iceflo-signal"

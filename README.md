@@ -138,7 +138,7 @@ The `transform_base` work adds the first privacy-preserving SimplePractice CSV p
 
 ## Google Drive Ingest Setup
 
-Client-owned Google Drive folders are configured per client, without committing folder IDs, OAuth tokens, or credential files.
+Client-owned Google Drive landing folders are configured per client, without committing folder IDs, OAuth tokens, or credential files. ICEFLO-hosted runtime jobs read from the client-provided source landing and write into the client-provided data root.
 
 The Mindful Oregon ingest source config lives at:
 
@@ -147,7 +147,7 @@ config/clients/mindful_oregon/ingest_sources.json
 config/clients/mindful_oregon/data_layers.json
 ```
 
-It defines a `mindful_oregon_simple_practice_drive` source that downloads CSV files into:
+It defines a `mindful_oregon_simple_practice_drive` source that downloads CSV files into the configured client data root at:
 
 ```text
 sources/simple_practice/test/landing/incoming
@@ -156,9 +156,9 @@ sources/simple_practice/test/landing/incoming
 For local user-account OAuth, set:
 
 ```bash
-export ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID="google-drive-root-folder-id"
-export ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID="google-drive-root-folder-id"
 export ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID="google-drive-incoming-folder-id"
+export ICEFLO_MINDFUL_OREGON_TEST_DATA_ROOT="client-provided-data-root-reference"
+export ICEFLO_MINDFUL_OREGON_PROD_DATA_ROOT="client-provided-data-root-reference"
 export ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH="/local/secure/path/client_secret.json"
 export ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH="/local/secure/path/mindful_oregon_token.json"
 ```
@@ -166,9 +166,9 @@ export ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH="/local/secure/path/mindful_orego
 On Windows PowerShell:
 
 ```powershell
-$env:ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID = "google-drive-root-folder-id"
-$env:ICEFLO_MINDFUL_OREGON_PROD_ROOT_FOLDER_ID = "google-drive-root-folder-id"
 $env:ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID = "google-drive-incoming-folder-id"
+$env:ICEFLO_MINDFUL_OREGON_TEST_DATA_ROOT = "client-provided-data-root-reference"
+$env:ICEFLO_MINDFUL_OREGON_PROD_DATA_ROOT = "client-provided-data-root-reference"
 $env:ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH = "C:\secure\iceflo-signal\client_secret.json"
 $env:ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH = "C:\secure\iceflo-signal\mindful_oregon_token.json"
 ```
@@ -198,8 +198,9 @@ The current repository implementations are:
 
 - `LocalFileRepository`
 - `GoogleDriveObjectRepository`
+- `GcsObjectRepository`
 
-Workflows should inject repositories into ingestion, pipeline, and delivery code instead of hardcoding filesystem, Google Drive, GCS, or database calls into transformation logic. This lets us use Google Drive as the data layer now, replace it with GCS later, and move to a database if scale or scope requires it.
+Workflows should inject repositories into ingestion, pipeline, and delivery code instead of hardcoding filesystem, Google Drive, GCS, or database calls into transformation logic. The intended deployment model is client-provided storage with ICEFLO-hosted runtime jobs.
 
 ## Client Onboarding Registry
 

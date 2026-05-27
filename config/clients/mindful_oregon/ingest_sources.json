@@ -7,13 +7,13 @@
       "client_key": "mindful_oregon",
       "system_key": "simple_practice",
       "environment": "test",
-      "repository_root_id": "mindful_oregon_test_drive",
+      "repository_root_id": "mindful_oregon_test_data_root",
       "auth_mode": "user_oauth",
       "folder_id_env": "ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID",
       "client_secrets_path_env": "ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH",
       "token_path_env": "ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH",
       "scopes": [
-        "https://www.googleapis.com/auth/drive.readonly"
+        "https://www.googleapis.com/auth/drive"
       ],
       "destination_path": "sources/simple_practice/test/landing/incoming",
       "file_name_patterns": [
