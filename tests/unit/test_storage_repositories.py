@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from iceflo_signal.storage import GoogleDriveObjectRepository, LocalFileRepository
+from iceflo_signal.storage.gcs_repository import _parse_root_ref
 
 
 class FakeGoogleDriveObjectClient:
@@ -52,3 +53,8 @@ def test_google_drive_object_repository_rejects_invalid_keys() -> None:
 
     with pytest.raises(ValueError, match="Invalid Drive object key"):
         repository.read_text("/absolute/path.csv")
+
+
+def test_gcs_root_reference_parses_bucket_and_optional_prefix() -> None:
+    assert _parse_root_ref("iceflo-signal-dev-1") == ("iceflo-signal-dev-1", "")
+    assert _parse_root_ref("gs://mindful-oregon-data-root/test") == ("mindful-oregon-data-root", "test")

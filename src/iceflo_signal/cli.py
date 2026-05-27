@@ -5,14 +5,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from iceflo_signal.config import load_client_data_layer_config, load_client_ingest_config
+from iceflo_signal.config import load_client_data_layer_config, load_client_ingest_config, load_client_manifest
 from iceflo_signal.delivery.clients.mindful_oregon import IncompleteNoteNotificationRenderer
 from iceflo_signal.delivery.demo_renderer import render_template_demos
 from iceflo_signal.ingestion.google_auth import build_google_credentials
 from iceflo_signal.ingestion.google_drive import GoogleApiDriveClient, GoogleDriveIngestSource
 from iceflo_signal.ingestion.clients.mindful_oregon.simple_practice import AppointmentStatusProcessor
 from iceflo_signal.pipeline import run_local_pipeline
-from iceflo_signal.storage import GoogleApiDriveObjectClient, GoogleDriveObjectRepository
+from iceflo_signal.storage import LocalFileRepository, build_repository
 from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteTransformer
 from iceflo_signal.workflows import run_configured_workflow
 
@@ -107,6 +107,18 @@ def build_parser() -> argparse.ArgumentParser:
         default="mindful_oregon_simple_practice_drive",
         help="Configured ingest source id to sync.",
     )
+    sync_drive.add_argument(
+        "--destination-repository",
+        choices=["configured", "local"],
+        default="configured",
+        help="Repository to write downloaded files into. Use configured for Cloud Run/GCS.",
+    )
+    sync_drive.add_argument(
+        "--storage-root",
+        default=Path("storage_sample"),
+        type=Path,
+        help="Local storage root used when --destination-repository local.",
+    )
 
     run_workflow = subparsers.add_parser(
         "run-workflow",
@@ -136,6 +148,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--input-filename",
         default=None,
         help="Optional override for the configured workflow input filename.",
+    )
+    run_workflow.add_argument(
+        "--repository",
+        choices=["local", "configured"],
+        default="local",
+        help="Repository to use for workflow data. Use configured for Cloud Run/GCS.",
     )
 
     return parser
@@ -184,12 +202,15 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError(f"{source_config.source_id} must define repository_root_id.")
         repository_root = data_layer_config.repository_root(source_config.repository_root_id)
         credentials = build_google_credentials(source_config)
+        landing_repository = (
+            build_repository(repository_root, google_drive_source=source_config)
+            if args.destination_repository == "configured"
+            else LocalFileRepository(args.storage_root)
+        )
         downloaded = GoogleDriveIngestSource(
             config=source_config,
             drive_client=GoogleApiDriveClient(credentials),
-            landing_repository=GoogleDriveObjectRepository(
-                GoogleApiDriveObjectClient(credentials, repository_root.root_ref())
-            ),
+            landing_repository=landing_repository,
         ).sync()
         print(f"Downloaded {len(downloaded)} files from {source_config.source_id}.")
         for item in downloaded:
@@ -197,12 +218,32 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "run-workflow":
+        storage_repository = None
+        if args.repository == "configured":
+            manifest_dir = args.config_root / args.client
+            manifest = load_client_manifest(args.client, config_root=args.config_root)
+            data_layer_config = load_client_data_layer_config(manifest_dir / manifest.config_files.data_layers)
+            ingest_config = load_client_ingest_config(manifest_dir / manifest.config_files.ingest_sources)
+            environment = args.environment or manifest.default_environment
+            edw_layer = data_layer_config.edw_layer(environment)
+            repository_root = data_layer_config.repository_root(edw_layer.root_id)
+            google_drive_source = _google_drive_source_for_repository(
+                ingest_config.sources,
+                repository_root.root_id,
+                environment,
+            )
+            storage_repository = build_repository(
+                repository_root,
+                local_storage_root=args.storage_root,
+                google_drive_source=google_drive_source,
+            )
         result = run_configured_workflow(
             client_key=args.client,
             workflow_id=args.workflow,
             environment=args.environment,
             recipient=args.recipient,
             config_root=args.config_root,
+            storage_repository=storage_repository,
             storage_root=args.storage_root,
             input_filename=args.input_filename,
         )
@@ -214,3 +255,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     return 1
+
+
+def _google_drive_source_for_repository(sources, root_id: str, environment: str):
+    for source in sources:
+        if source.repository_root_id == root_id and source.environment == environment:
+            return source
+    return None

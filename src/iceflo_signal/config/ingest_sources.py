@@ -24,7 +24,7 @@ class GoogleDriveSourceConfig(BaseModel):
     client_secrets_path_env: str | None = None
     token_path_env: str | None = None
     service_account_path_env: str | None = None
-    scopes: list[str] = Field(default_factory=lambda: ["https://www.googleapis.com/auth/drive.readonly"])
+    scopes: list[str] = Field(default_factory=lambda: ["https://www.googleapis.com/auth/drive"])
     destination_path: Path
     file_name_patterns: list[str] = Field(default_factory=lambda: ["*.csv"])
     archive_after_download: bool = False

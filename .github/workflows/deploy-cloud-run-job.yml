@@ -15,6 +15,7 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   ARTIFACT_REGISTRY_REPOSITORY: ${{ vars.ARTIFACT_REGISTRY_REPOSITORY }}
   CLOUD_RUN_JOB: ${{ vars.CLOUD_RUN_JOB }}
+  CLOUD_RUN_JOBS: ${{ vars.CLOUD_RUN_JOBS }}
 
 jobs:
   deploy:
@@ -47,7 +48,15 @@ jobs:
 
       - name: Deploy Cloud Run job image
         run: |
-          gcloud run jobs deploy "${CLOUD_RUN_JOB}" \
-            --image "${IMAGE}" \
-            --region "${REGION}" \
-            --project "${PROJECT_ID}"
+          JOBS="${CLOUD_RUN_JOBS:-$CLOUD_RUN_JOB}"
+          IFS=',' read -ra JOB_NAMES <<< "${JOBS}"
+          for JOB_NAME in "${JOB_NAMES[@]}"; do
+            JOB_NAME="$(echo "${JOB_NAME}" | xargs)"
+            if [ -z "${JOB_NAME}" ]; then
+              continue
+            fi
+            gcloud run jobs update "${JOB_NAME}" \
+              --image "${IMAGE}" \
+              --region "${REGION}" \
+              --project "${PROJECT_ID}"
+          done

@@ -37,7 +37,7 @@ def test_load_client_ingest_config_reads_google_drive_source() -> None:
     assert source.source_type == "google_drive"
     assert source.auth_mode == "user_oauth"
     assert source.environment == "test"
-    assert source.repository_root_id == "mindful_oregon_test_drive"
+    assert source.repository_root_id == "mindful_oregon_test_data_root"
     assert source.folder_id_env == "ICEFLO_MINDFUL_OREGON_SIMPLE_PRACTICE_TEST_INCOMING_FOLDER_ID"
     assert source.destination_path == Path("sources/simple_practice/test/landing/incoming")
 
@@ -52,7 +52,9 @@ def test_load_client_data_layer_config_describes_source_and_edw_layers() -> None
     assert source_layer.archive_prefix == "sources/simple_practice/test/landing/archive"
     assert edw_layer.prefixes["curated"] == "edw/test/curated"
     assert edw_layer.prefixes["presentation"] == "edw/test/presentation"
-    assert config.repository_root("mindful_oregon_test_drive").root_ref_env == "ICEFLO_MINDFUL_OREGON_TEST_ROOT_FOLDER_ID"
+    repository_root = config.repository_root("mindful_oregon_test_data_root")
+    assert repository_root.repository_type == "gcs"
+    assert repository_root.root_ref_env == "ICEFLO_MINDFUL_OREGON_TEST_DATA_ROOT"
 
 
 def test_google_drive_ingest_source_downloads_matching_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

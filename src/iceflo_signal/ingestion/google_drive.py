@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Protocol
 
 from iceflo_signal.config.ingest_sources import GoogleDriveSourceConfig
-from iceflo_signal.storage import LocalFileRepository, ObjectRepository
+from iceflo_signal.storage.repositories import LocalFileRepository, ObjectRepository
 
 
 @dataclass(frozen=True)

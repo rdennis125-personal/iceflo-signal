@@ -1,11 +1,11 @@
-output "root_bucket_name" {
-  description = "Root GCS bucket name."
-  value       = google_storage_bucket.root.name
+output "mindful_oregon_test_data_root" {
+  description = "Mindful Oregon test data root reference."
+  value       = var.mindful_oregon_test_data_root
 }
 
-output "root_bucket_url" {
-  description = "Root GCS bucket URL."
-  value       = google_storage_bucket.root.url
+output "mindful_oregon_prod_data_root" {
+  description = "Mindful Oregon production data root reference."
+  value       = local.mindful_oregon_prod_data_root
 }
 
 output "storage_prefixes" {
@@ -19,8 +19,8 @@ output "artifact_registry_repository" {
 }
 
 output "cloud_run_job_name" {
-  description = "Cloud Run Job name."
-  value       = google_cloud_run_v2_job.iceflo_signal.name
+  description = "Cloud Run Job names."
+  value       = { for key, job in google_cloud_run_v2_job.iceflo_signal : key => job.name }
 }
 
 output "cloud_run_runtime_service_account_email" {

@@ -1,5 +1,5 @@
 variable "project_id" {
-  description = "Google Cloud project ID where ICEFLO Signal storage will be created."
+  description = "Google Cloud project ID where ICEFLO Signal runtime resources are deployed."
   type        = string
 }
 
@@ -15,13 +15,19 @@ variable "storage_location" {
   default     = "US"
 }
 
-variable "root_bucket_name" {
-  description = "Globally unique root GCS bucket name for ICEFLO Signal storage."
+variable "mindful_oregon_test_data_root" {
+  description = "Client-provided Mindful Oregon test data root for the configured repository implementation. For GCS, use a bucket name or gs:// URI."
   type        = string
 }
 
+variable "mindful_oregon_prod_data_root" {
+  description = "Client-provided Mindful Oregon production data root for the configured repository implementation. For GCS, use a bucket name or gs:// URI."
+  type        = string
+  default     = ""
+}
+
 variable "storage_class" {
-  description = "Storage class for the root GCS bucket."
+  description = "Storage class for a Terraform-created client data root bucket."
   type        = string
   default     = "STANDARD"
 }
@@ -36,7 +42,7 @@ variable "labels" {
 }
 
 variable "force_destroy" {
-  description = "Allow Terraform to delete the bucket even when objects exist. Keep false for shared or production environments."
+  description = "Allow Terraform to delete a managed bucket even when objects exist. Keep false for client data roots."
   type        = bool
   default     = false
 }
@@ -60,9 +66,15 @@ variable "cloud_run_runtime_service_account_id" {
 }
 
 variable "cloud_run_job_name" {
-  description = "Cloud Run Job name for scheduled ICEFLO Signal work."
+  description = "Legacy Cloud Run Job name used when cloud_run_jobs is empty."
   type        = string
   default     = "iceflo-signal-job"
+}
+
+variable "manage_client_data_root_bucket" {
+  description = "Create the GCS client data root bucket with Terraform for this deployment. Set false when the client provides an existing bucket or a non-GCS data layer."
+  type        = bool
+  default     = true
 }
 
 variable "cloud_run_image" {
@@ -71,7 +83,7 @@ variable "cloud_run_image" {
 }
 
 variable "cloud_run_job_args" {
-  description = "Default CLI args for the Cloud Run Job container."
+  description = "Legacy CLI args used when cloud_run_jobs is empty."
   type        = list(string)
   default     = ["--help"]
 }
@@ -80,4 +92,13 @@ variable "cloud_run_job_timeout" {
   description = "Cloud Run Job task timeout."
   type        = string
   default     = "3600s"
+}
+
+variable "cloud_run_jobs" {
+  description = "Named Cloud Run Jobs to deploy from the shared ICEFLO Signal image."
+  type = map(object({
+    name = string
+    args = list(string)
+  }))
+  default = {}
 }
