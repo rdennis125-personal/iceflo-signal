@@ -26,6 +26,17 @@ class ClientManifest(BaseModel):
     config_files: ClientConfigFiles
 
 
+class GmailDeliveryConfig(BaseModel):
+    """Gmail delivery settings for a configured workflow."""
+
+    provider: Literal["gmail"] = "gmail"
+    recipient_email: str
+    sender_email: str
+    client_secrets_path_env: str = "ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH"
+    token_path_env: str = "ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH"
+    scopes: list[str] = ["https://www.googleapis.com/auth/gmail.send"]
+
+
 class WorkflowConfig(BaseModel):
     """Configured workflow that can be executed for an onboarded client."""
 
@@ -38,6 +49,7 @@ class WorkflowConfig(BaseModel):
     recipient_mapping_id: str | None = None
     report_period: str = "Weekly export"
     template_dir: Path = Path("templates")
+    delivery: GmailDeliveryConfig | None = None
 
 
 class ClientWorkflowRegistry(BaseModel):

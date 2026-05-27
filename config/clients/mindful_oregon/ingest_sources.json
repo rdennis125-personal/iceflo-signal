@@ -13,7 +13,8 @@
       "client_secrets_path_env": "ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH",
       "token_path_env": "ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH",
       "scopes": [
-        "https://www.googleapis.com/auth/drive"
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/gmail.send"
       ],
       "destination_path": "sources/simple_practice/test/landing/incoming",
       "file_name_patterns": [

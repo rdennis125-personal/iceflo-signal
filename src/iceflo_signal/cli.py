@@ -129,8 +129,8 @@ def build_parser() -> argparse.ArgumentParser:
     run_workflow.add_argument("--environment", default=None, help="Environment to run. Defaults to the client manifest.")
     run_workflow.add_argument(
         "--recipient",
-        default="rdennis125@gmail.com",
-        help="Recipient address used by notification preview workflows.",
+        default=None,
+        help="Optional recipient override. Defaults to the workflow delivery config.",
     )
     run_workflow.add_argument(
         "--config-root",
@@ -154,6 +154,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["local", "configured"],
         default="local",
         help="Repository to use for workflow data. Use configured for Cloud Run/GCS.",
+    )
+    run_workflow.add_argument(
+        "--delivery-mode",
+        choices=["dry_run", "send"],
+        default="dry_run",
+        help="Render email drafts only or send them through the configured provider.",
     )
 
     return parser
@@ -242,6 +248,7 @@ def main(argv: list[str] | None = None) -> int:
             workflow_id=args.workflow,
             environment=args.environment,
             recipient=args.recipient,
+            delivery_mode=args.delivery_mode,
             config_root=args.config_root,
             storage_repository=storage_repository,
             storage_root=args.storage_root,
@@ -251,6 +258,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Processed {result.records_processed} records.")
         print(f"Rendered {result.rendered_html_count} HTML previews.")
         print(f"Rendered {result.rendered_email_count} email drafts.")
+        print(f"Sent {result.sent_email_count} emails.")
         print(f"Outputs written under {result.output_prefix}.")
         return 0
 

@@ -29,6 +29,7 @@ cloud_run_jobs = {
       "--environment", "test",
       "--workflow", "incomplete_note_notifications",
       "--repository", "configured",
+      "--delivery-mode", "send",
       "--recipient", "rdennis125@gmail.com"
     ]
   }

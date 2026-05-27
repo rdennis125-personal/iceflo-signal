@@ -20,6 +20,7 @@ class NotificationRenderResult:
     html_paths: list[Path]
     eml_paths: list[Path]
     index_path: Path
+    subjects: list[str]
 
 
 class IncompleteNoteNotificationRenderer:
@@ -46,9 +47,11 @@ class IncompleteNoteNotificationRenderer:
         repository = output_repository or LocalFileRepository(output_dir)
         html_paths: list[Path] = []
         eml_paths: list[Path] = []
+        subjects: list[str] = []
 
         for digest in digests:
             subject = f"Incomplete progress notes - {digest.clinician_name}"
+            subjects.append(subject)
             envelope = EmailEnvelope(
                 email_title=subject,
                 organization_name="Mindful Oregon",
@@ -93,7 +96,12 @@ class IncompleteNoteNotificationRenderer:
         index_path = output_dir / "index.html"
         index_key = index_path.as_posix() if output_repository else index_path.name
         repository.write_text(index_key, _index_html(html_paths, eml_paths, recipient), content_type="text/html")
-        return NotificationRenderResult(html_paths=html_paths, eml_paths=eml_paths, index_path=index_path)
+        return NotificationRenderResult(
+            html_paths=html_paths,
+            eml_paths=eml_paths,
+            index_path=index_path,
+            subjects=subjects,
+        )
 
 
 def _build_eml(recipient: str, sender: str, subject: str, rendered_html: str) -> str:

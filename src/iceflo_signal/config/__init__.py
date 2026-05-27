@@ -13,6 +13,7 @@ from iceflo_signal.config.ingest_sources import (
 from iceflo_signal.config.client_registry import (
     ClientManifest,
     ClientWorkflowRegistry,
+    GmailDeliveryConfig,
     WorkflowConfig,
     load_client_manifest,
     load_client_workflows,
@@ -25,6 +26,7 @@ __all__ = [
     "ClientWorkflowRegistry",
     "EdwLayerConfig",
     "GoogleDriveSourceConfig",
+    "GmailDeliveryConfig",
     "RepositoryRootConfig",
     "SourceLayerConfig",
     "WorkflowConfig",

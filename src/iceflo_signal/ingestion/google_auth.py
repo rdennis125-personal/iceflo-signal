@@ -18,6 +18,16 @@ def build_google_credentials(config: GoogleDriveSourceConfig) -> object:
 
 
 def _build_user_oauth_credentials(config: GoogleDriveSourceConfig) -> object:
+    return build_user_oauth_credentials(
+        client_secrets_path=config.client_secrets_path(),
+        token_path=config.token_path(),
+        scopes=config.scopes,
+    )
+
+
+def build_user_oauth_credentials(client_secrets_path: Path | None, token_path: Path | None, scopes: list[str]) -> object:
+    """Build refreshable user OAuth credentials for Google APIs."""
+
     try:
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
@@ -28,16 +38,16 @@ def _build_user_oauth_credentials(config: GoogleDriveSourceConfig) -> object:
             "Install project requirements before using Drive sync."
         ) from exc
 
-    token_path = config.token_path()
     credentials = None
     if token_path and token_path.exists():
-        credentials = Credentials.from_authorized_user_file(str(token_path), config.scopes)
+        credentials = Credentials.from_authorized_user_file(str(token_path), scopes)
 
     if credentials and credentials.expired and credentials.refresh_token:
         credentials.refresh(Request())
-    elif not credentials or not credentials.valid:
-        client_secrets_path = _required_path(config.client_secrets_path(), "OAuth client secrets")
-        flow = InstalledAppFlow.from_client_secrets_file(str(client_secrets_path), config.scopes)
+
+    if not credentials or not credentials.valid or not credentials.has_scopes(scopes):
+        resolved_client_secrets_path = _required_path(client_secrets_path, "OAuth client secrets")
+        flow = InstalledAppFlow.from_client_secrets_file(str(resolved_client_secrets_path), scopes)
         credentials = flow.run_local_server(port=0)
 
     if token_path:
