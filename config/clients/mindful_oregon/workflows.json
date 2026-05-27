@@ -1,0 +1,16 @@
+{
+  "client_key": "mindful_oregon",
+  "workflows": [
+    {
+      "workflow_id": "incomplete_note_notifications",
+      "workflow_type": "simple_practice_incomplete_note_notifications",
+      "enabled": true,
+      "source_system": "simple_practice",
+      "input_filename": "appointment-status-report.csv",
+      "presentation_prefix": "incomplete_note_notifications",
+      "recipient_mapping_id": "mindful_oregon_test_default",
+      "report_period": "Weekly SimplePractice export",
+      "template_dir": "templates"
+    }
+  ]
+}

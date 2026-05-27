@@ -14,6 +14,7 @@ from iceflo_signal.ingestion.clients.mindful_oregon.simple_practice import Appoi
 from iceflo_signal.pipeline import run_local_pipeline
 from iceflo_signal.storage import GoogleApiDriveObjectClient, GoogleDriveObjectRepository
 from iceflo_signal.transforms.clients.mindful_oregon.simple_practice import IncompleteNoteTransformer
+from iceflo_signal.workflows import run_configured_workflow
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -107,6 +108,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="Configured ingest source id to sync.",
     )
 
+    run_workflow = subparsers.add_parser(
+        "run-workflow",
+        help="Run a configured client workflow from the onboarding registry.",
+    )
+    run_workflow.add_argument("--client", required=True, help="Client key, such as mindful_oregon.")
+    run_workflow.add_argument("--workflow", required=True, help="Workflow id from the client's workflows.json.")
+    run_workflow.add_argument("--environment", default=None, help="Environment to run. Defaults to the client manifest.")
+    run_workflow.add_argument(
+        "--recipient",
+        default="rdennis125@gmail.com",
+        help="Recipient address used by notification preview workflows.",
+    )
+    run_workflow.add_argument(
+        "--config-root",
+        default=Path("config/clients"),
+        type=Path,
+        help="Root directory containing client onboarding configs.",
+    )
+    run_workflow.add_argument(
+        "--storage-root",
+        default=Path("storage_sample"),
+        type=Path,
+        help="Local storage root used by repository-backed local runs.",
+    )
+    run_workflow.add_argument(
+        "--input-filename",
+        default=None,
+        help="Optional override for the configured workflow input filename.",
+    )
+
     return parser
 
 
@@ -163,6 +194,23 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Downloaded {len(downloaded)} files from {source_config.source_id}.")
         for item in downloaded:
             print(f"- {item.drive_file.name} -> {item.local_path}")
+        return 0
+
+    if args.command == "run-workflow":
+        result = run_configured_workflow(
+            client_key=args.client,
+            workflow_id=args.workflow,
+            environment=args.environment,
+            recipient=args.recipient,
+            config_root=args.config_root,
+            storage_root=args.storage_root,
+            input_filename=args.input_filename,
+        )
+        print(f"Ran {result.workflow_id} for {result.client_key}/{result.environment}.")
+        print(f"Processed {result.records_processed} records.")
+        print(f"Rendered {result.rendered_html_count} HTML previews.")
+        print(f"Rendered {result.rendered_email_count} email drafts.")
+        print(f"Outputs written under {result.output_prefix}.")
         return 0
 
     return 1

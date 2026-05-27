@@ -33,6 +33,7 @@ coverage/
 
 # Terraform
 .terraform/
+infra/terraform/.local/
 *.tfstate
 *.tfstate.*
 *.tfvars
