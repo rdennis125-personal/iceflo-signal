@@ -7,6 +7,7 @@ This Terraform scaffold creates the initial Google Cloud runtime resources for I
 - Cloud Run runtime service account.
 - Secret Manager placeholder secrets for Google Drive ingest.
 - Cloud Run Jobs for scheduled ICEFLO Signal ingest and workflow execution.
+- Gmail API enablement for configured email delivery.
 
 Storage is client-provided and selected by client configuration. This Terraform module configures the GCS implementation of that contract for the first deployment. For development, Terraform can create a dedicated client data-root bucket with `manage_client_data_root_bucket = true`. For a real client-provided GCS bucket, set `manage_client_data_root_bucket = false` and provide the existing bucket name.
 
@@ -85,7 +86,7 @@ gcloud secrets versions add iceflo-google-oauth-client-secrets --data-file=.loca
 gcloud secrets versions add iceflo-mindful-oregon-google-token --data-file=.local/secrets/mindful_oregon_google_token.json
 ```
 
-The committed files under `secret_templates/` are bootstrap placeholders only. Copy them to `.local/secrets/`, replace placeholder values with real values when available, and keep `.local/` out of git. The Cloud Run Jobs read the customer source landing folder ID as an environment variable and mount the OAuth JSON values as files.
+The committed files under `secret_templates/` are bootstrap placeholders only. Copy them to `.local/secrets/`, replace placeholder values with real values when available, and keep `.local/` out of git. The Cloud Run Jobs read the customer source landing folder ID as an environment variable and mount the OAuth JSON values as files. The Google token must include Drive and Gmail send scopes for the email delivery job.
 
 ## Cloud Run Jobs
 

@@ -10,7 +10,18 @@
       "presentation_prefix": "incomplete_note_notifications",
       "recipient_mapping_id": "mindful_oregon_test_default",
       "report_period": "Weekly SimplePractice export",
-      "template_dir": "templates"
+      "template_dir": "templates",
+      "delivery": {
+        "provider": "gmail",
+        "recipient_email": "rdennis125@gmail.com",
+        "sender_email": "rdennis125@gmail.com",
+        "client_secrets_path_env": "ICEFLO_GOOGLE_OAUTH_CLIENT_SECRETS_PATH",
+        "token_path_env": "ICEFLO_MINDFUL_OREGON_GOOGLE_TOKEN_PATH",
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/gmail.send"
+        ]
+      }
     }
   ]
 }

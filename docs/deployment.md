@@ -8,6 +8,7 @@ The current deployment shape uses:
 - Google Cloud Scheduler for recurring runs.
 - Google Secret Manager for credentials and environment-specific configuration.
 - Google Cloud Logging for structured processing logs.
+- Gmail API for configured email delivery.
 
 The local CLI shape is intended to map cleanly to a container entrypoint.
 
@@ -30,7 +31,7 @@ The ingest job reads CSV files from the configured Google Drive landing folder a
 sources/simple_practice/test/landing/incoming/
 ```
 
-The workflow job reads the landing copy from the configured client data root, processes incomplete-note notifications, and writes HTML and `.eml` previews back into that same client data root under:
+The workflow job reads the landing copy from the configured client data root, processes incomplete-note notifications, writes HTML and `.eml` previews back into that same client data root, and can send those rendered emails through Gmail when `--delivery-mode send` is set.
 
 ```text
 edw/test/presentation/incomplete_note_notifications/
@@ -61,3 +62,12 @@ iceflo-mindful-oregon-test-simple-practice-ingest,iceflo-mindful-oregon-test-inc
 ```
 
 Run Terraform before the image deployment workflow so the jobs exist; the workflow updates the image on existing jobs and leaves Terraform-managed args, env vars, secrets, and service account settings intact.
+
+The Mindful Oregon Google OAuth token must include both:
+
+```text
+https://www.googleapis.com/auth/drive
+https://www.googleapis.com/auth/gmail.send
+```
+
+If the token was created before Gmail sending was added, regenerate it locally after deleting the old token JSON and upload a new Secret Manager version for `iceflo-mindful-oregon-google-token`.

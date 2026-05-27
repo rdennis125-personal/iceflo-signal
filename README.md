@@ -186,6 +186,15 @@ python -m iceflo_signal sync-google-drive \
 
 The first OAuth run opens a browser consent flow and writes a refreshable token to the configured token path. Credential and token JSON files must stay outside git and should later move to Google Secret Manager or another managed secret store.
 
+For email sending, the same OAuth token must be generated with both Drive and Gmail send scopes:
+
+```text
+https://www.googleapis.com/auth/drive
+https://www.googleapis.com/auth/gmail.send
+```
+
+The incomplete-note workflow defaults to the sender and recipient defined in `config/clients/mindful_oregon/workflows.json`. Use `--delivery-mode send` to send through Gmail; omit it or use `--delivery-mode dry_run` to render HTML and `.eml` drafts only. For early testing, sender and recipient may be the same email address; production can send from a configured sender account to provider-specific recipients once recipient mappings are imported.
+
 ## Storage Repository Pattern
 
 Pipeline data access should go through repository interfaces under:
