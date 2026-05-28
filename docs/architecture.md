@@ -16,6 +16,7 @@ Current implementations:
 
 - `LocalFileRepository` for local development and sample runs.
 - `GoogleDriveObjectRepository` for Drive-backed object storage.
+- `GcsObjectRepository` for GCS-backed client data roots.
 
 This keeps ingestion, validation, transformation, and delivery logic independent from the storage backend. A workflow can compose repositories like:
 

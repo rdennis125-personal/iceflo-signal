@@ -22,6 +22,11 @@ Manual CSV Export
   -> Delivery Layer
 ```
 
+## Onboarding Playbooks
+
+- [Mindful Oregon internal onboarding](docs/mindful_oregon_internal_onboarding.md)
+- [Mindful Oregon customer onboarding](docs/mindful_oregon_customer_onboarding.md)
+
 ## Client Data Layer
 
 ```text
